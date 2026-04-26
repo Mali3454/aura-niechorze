@@ -4,7 +4,7 @@ export function AboutUs() {
       <div className="about-inner container">
         <div className="about-image reveal">
           <img
-            src="/niechorze-1.webp"
+            src={`${import.meta.env.BASE_URL}niechorze-1.webp`}
             alt="Plaża nad Bałtykiem"
             loading="lazy"
           />

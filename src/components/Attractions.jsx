@@ -30,7 +30,7 @@ export function Attractions() {
         </div>
         <div className="attractions-right reveal">
           <img
-            src="/niechorze-2.webp"
+            src={`${import.meta.env.BASE_URL}niechorze-2.webp`}
             alt="Latarnia morska nad morzem"
             loading="lazy"
           />
