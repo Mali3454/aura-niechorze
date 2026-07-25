@@ -24,3 +24,12 @@ describe('build produkuje stronę polską', () => {
     expect(html).not.toContain('fonts.gstatic.com');
   });
 });
+
+describe('zasoby graficzne', () => {
+  it.skip('favicon jest podlinkowany', () => {
+    const d = doc('dist/index.html');
+    const icon = d.querySelector('link[rel="icon"]');
+    expect(icon).not.toBeNull();
+    expect(icon.getAttribute('href')).toContain('favicon.svg');
+  });
+});
