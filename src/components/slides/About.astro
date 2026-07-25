@@ -1,0 +1,48 @@
+---
+import { Picture } from 'astro:assets';
+import Slide from '../Slide.astro';
+import type { SiteContent } from '../../content/types';
+import salon from '../../assets/salon-okno.webp';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+---
+<Slide id="obiekt" variant="mist" waveFrom="navy" class="about">
+  <div class="about__grid">
+    <div>
+      <h2 id="obiekt-title">{content.about.h2}</h2>
+      <p class="about__lead">{content.about.lead}</p>
+      <p class="about__body">{content.about.body}</p>
+      <dl class="about__stats">
+        {content.about.stats.map((s) => (
+          <div class="stat">
+            <dt class="stat__label">{s.label}</dt>
+            <dd class="stat__value">{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    <Picture
+      src={salon}
+      formats={['avif', 'webp']}
+      widths={[480, 800, 1200]}
+      sizes="(max-width: 60rem) 100vw, 44vw"
+      alt={content.alts.salon}
+      loading="lazy"
+      class="about__photo"
+    />
+  </div>
+</Slide>
+
+<style>
+  .about__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  @media (min-width: 60rem) { .about__grid { grid-template-columns: 1fr 1fr; } }
+  h2 { font-size: var(--step-4); }
+  .about__lead { margin-top: var(--space-2); font-size: var(--step-1); }
+  .about__body { margin-top: var(--space-2); max-width: 46ch; }
+  .about__stats { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-4) 0 0; }
+  .stat { display: flex; flex-direction: column-reverse; }
+  .stat__value { margin: 0; font-size: var(--step-3); font-weight: 200; line-height: 1; }
+  .stat__label { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .65; margin-top: .35rem; }
+  .about :global(.about__photo) { width: 100%; height: auto; border-radius: 2px; }
+</style>

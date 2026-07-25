@@ -157,6 +157,20 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(cta).not.toBeNull();
   });
 
+  it('slajd o obiekcie ma trzy liczby i zdjęcie z alt', () => {
+    const d = doc(path);
+    expect(d.querySelectorAll('#obiekt .stat')).toHaveLength(3);
+    const img = d.querySelector('#obiekt img');
+    expect(img.getAttribute('alt').length).toBeGreaterThan(20);
+    expect(img.getAttribute('loading')).toBe('lazy');
+  });
+
+  it('slajd okolicy ma listę odległości i trzy atrakcje', () => {
+    const d = doc(path);
+    expect(d.querySelectorAll('#okolica .distance').length).toBeGreaterThanOrEqual(6);
+    expect(d.querySelectorAll('#okolica .attraction')).toHaveLength(3);
+  });
+
   it('nie publikuje danych niepotwierdzonych', () => {
     // Celowo sprawdzamy tekst widoczny dla użytkownika i JSON-LD, a nie całe
     // źródło — słowo "null" legalnie występuje w kodzie skryptów komponentów.
