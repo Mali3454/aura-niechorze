@@ -102,7 +102,9 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     for (const s of d.querySelectorAll('main section')) {
       const ref = s.getAttribute('aria-labelledby');
       expect(ref, `sekcja #${s.id} bez aria-labelledby`).toBe(`${s.id}-title`);
-      expect(d.getElementById(ref), `brak nagłówka #${ref}`).not.toBeNull();
+      const heading = d.getElementById(ref);
+      expect(heading, `brak elementu #${ref}`).not.toBeNull();
+      expect(heading.tagName, `#${ref} nie jest nagłówkiem (h1–h6), tylko ${heading.tagName}`).toMatch(/^H[1-6]$/);
     }
   });
 
@@ -112,9 +114,13 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
   });
 
   it('ma nawigację z kotwicami do wszystkich slajdów', () => {
-    const hrefs = [...doc(path).querySelectorAll('nav a')].map((a) => a.getAttribute('href'));
+    const d = doc(path);
+    const hrefs = [...d.querySelectorAll('nav a')].map((a) => a.getAttribute('href'));
     for (const id of ['start', 'obiekt', 'apartament', 'okolica', 'kontakt']) {
       expect(hrefs).toContain(`#${id}`);
+      const target = d.getElementById(id);
+      expect(target, `brak elementu #${id}, na który wskazuje kotwica`).not.toBeNull();
+      expect(target.tagName, `#${id} nie jest sekcją slajdu, tylko ${target.tagName}`).toBe('SECTION');
     }
   });
 
