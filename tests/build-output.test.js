@@ -135,6 +135,21 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(hrefs).toEqual(expect.arrayContaining(['/', '/de/', '/en/']));
   });
 
+  it('slajd otwierający ma zdjęcie z srcset, wymiarami i priorytetem', () => {
+    const img = doc(path).querySelector('#start img');
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('srcset')).toBeTruthy();
+    expect(img.getAttribute('width')).toBeTruthy();
+    expect(img.getAttribute('height')).toBeTruthy();
+    expect(img.getAttribute('alt').length).toBeGreaterThan(20);
+    expect(img.getAttribute('loading')).not.toBe('lazy');
+  });
+
+  it('slajd otwierający ma przycisk telefonu', () => {
+    const cta = doc(path).querySelector('#start a[href^="tel:"]');
+    expect(cta).not.toBeNull();
+  });
+
   it('nie publikuje danych niepotwierdzonych', () => {
     // Celowo sprawdzamy tekst widoczny dla użytkownika i JSON-LD, a nie całe
     // źródło — słowo "null" legalnie występuje w kodzie skryptów komponentów.

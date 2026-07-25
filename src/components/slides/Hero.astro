@@ -1,0 +1,56 @@
+---
+import { Picture } from 'astro:assets';
+import Slide from '../Slide.astro';
+import { FACTS } from '../../content/facts';
+import type { SiteContent } from '../../content/types';
+import budynek from '../../assets/budynek-zmierzch.webp';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+---
+<Slide id="start" variant="photo" class="hero">
+  <Picture
+    src={budynek}
+    formats={['avif', 'webp']}
+    widths={[640, 1024, 1600, 2400]}
+    sizes="100vw"
+    alt={content.alts.budynek}
+    loading="eager"
+    fetchpriority="high"
+    class="hero__bg"
+  />
+  <div class="hero__copy">
+    <h1 id="start-title">{content.hero.h1}</h1>
+    <p class="hero__sub">{content.hero.sub}</p>
+    <a class="hero__cta" href={FACTS.phoneHref}>
+      {content.hero.cta}
+      <span aria-hidden="true"> · {FACTS.phoneDisplay}</span>
+    </a>
+  </div>
+  <p class="hero__hint" aria-hidden="true">{content.hero.scrollHint}</p>
+</Slide>
+
+<style>
+  .hero { padding-block-end: clamp(6rem, 16vh, 10rem); }
+  .hero :global(.hero__bg) {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, rgba(2,64,118,.62) 0%, rgba(2,64,118,.28) 42%, rgba(2,64,118,.82) 100%);
+  }
+  .hero__copy { max-width: 22ch; }
+  h1 { font-size: var(--step-5); }
+  .hero__sub { margin-top: var(--space-2); font-size: var(--step-1); max-width: var(--measure); opacity: .92; }
+  .hero__cta {
+    display: inline-block; margin-top: var(--space-3);
+    background: var(--white); color: var(--navy);
+    padding: 0.9rem 1.9rem; border-radius: var(--radius-pill);
+    font-weight: 600; text-decoration: none;
+  }
+  .hero__cta:hover { background: var(--sky); }
+  .hero__hint {
+    position: absolute; inset: auto 0 var(--space-3) 0; text-align: center;
+    font-size: 0.78rem; letter-spacing: .16em; text-transform: uppercase; opacity: .7;
+  }
+</style>

@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Chrome from '../components/Chrome.astro';
 import Slide from '../components/Slide.astro';
 import SlideNav from '../components/SlideNav.astro';
+import Hero from '../components/slides/Hero.astro';
 import { pl as c } from '../content/pl';
 
 const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
@@ -11,7 +12,7 @@ const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
   <Chrome content={c} />
   <SlideNav ids={IDS} names={c.chrome.slideNames} label={c.chrome.navLabel} />
   <main id="tresc" class="slides">
-    <Slide id="start" variant="navy"><h1 id="start-title">{c.hero.h1}</h1></Slide>
+    <Hero content={c} />
     <Slide id="obiekt" variant="mist" waveFrom="navy"><h2 id="obiekt-title">{c.about.h2}</h2></Slide>
     <Slide id="apartament" variant="navy" waveFrom="mist"><h2 id="apartament-title">{c.apartment.h2}</h2></Slide>
     <Slide id="okolica" variant="white" waveFrom="navy"><h2 id="okolica-title">{c.area.h2}</h2></Slide>
