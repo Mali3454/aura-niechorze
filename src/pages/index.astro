@@ -1,15 +1,7 @@
 ---
-import '../styles/tokens.css';
-import '../styles/global.css';
+import Base from '../layouts/Base.astro';
+import { pl } from '../content/pl';
 ---
-<!doctype html>
-<html lang="pl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Aura Niechorze — apartamenty przy plaży</title>
-  </head>
-  <body>
-    <h1>Aura Niechorze — apartamenty przy plaży</h1>
-  </body>
-</html>
+<Base content={pl}>
+  <main id="tresc"><h1>{pl.hero.h1}</h1></main>
+</Base>

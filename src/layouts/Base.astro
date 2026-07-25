@@ -1,0 +1,48 @@
+---
+import '@fontsource-variable/outfit/index.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import type { SiteContent, Lang } from '../content/types';
+import ogImage from '../assets/budynek-zmierzch.webp';
+import outfitWoff2 from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+
+const SITE = 'https://aura-niechorze.pl';
+const PATHS: Record<Lang, string> = { pl: '/', de: '/de/', en: '/en/' };
+const HREF_LANGS: Record<Lang, string> = { pl: 'pl-PL', de: 'de-DE', en: 'en-GB' };
+const canonical = SITE + PATHS[content.lang];
+---
+<!doctype html>
+<html lang={content.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{content.meta.title}</title>
+    <meta name="description" content={content.meta.description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    <link rel="preload" as="font" type="font/woff2" href={outfitWoff2} crossorigin />
+
+    {(['pl', 'de', 'en'] as Lang[]).map((l) => (
+      <link rel="alternate" hreflang={HREF_LANGS[l]} href={SITE + PATHS[l]} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={SITE + PATHS.pl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Aura Niechorze" />
+    <meta property="og:title" content={content.meta.title} />
+    <meta property="og:description" content={content.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={content.htmlLang.replace('-', '_')} />
+    <meta property="og:image" content={SITE + ogImage.src} />
+    <meta property="og:image:alt" content={content.meta.ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#tresc">{content.chrome.skip}</a>
+    <slot />
+  </body>
+</html>
