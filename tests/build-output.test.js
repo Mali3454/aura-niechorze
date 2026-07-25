@@ -142,7 +142,14 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(img.getAttribute('width')).toBeTruthy();
     expect(img.getAttribute('height')).toBeTruthy();
     expect(img.getAttribute('alt').length).toBeGreaterThan(20);
-    expect(img.getAttribute('loading')).not.toBe('lazy');
+    expect(img.getAttribute('loading')).toBe('eager');
+    expect(img.getAttribute('fetchpriority')).toBe('high');
+  });
+
+  it('slajd otwierający ma źródło AVIF', () => {
+    const source = doc(path).querySelector('#start source[type="image/avif"]');
+    expect(source).not.toBeNull();
+    expect(source.getAttribute('srcset')).toBeTruthy();
   });
 
   it('slajd otwierający ma przycisk telefonu', () => {
