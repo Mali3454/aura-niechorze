@@ -45,7 +45,7 @@ const { images, labels } = Astro.props;
     const image = root.querySelector('[data-gallery-image]');
     const caption = root.querySelector('[data-gallery-caption]');
     let current = 0;
-    let opener;
+    let opener = null;
 
     const sources = buttons.map((b) => {
       const img = b.querySelector('img');

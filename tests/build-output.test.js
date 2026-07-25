@@ -237,8 +237,13 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
   it('nie publikuje danych niepotwierdzonych', () => {
     // Celowo sprawdzamy tekst widoczny dla użytkownika i JSON-LD, a nie całe
     // źródło — słowo "null" legalnie występuje w kodzie skryptów komponentów.
+    // body.textContent w linkedom (jak w prawdziwym DOM) obejmuje też zawartość
+    // <script>/<style>, więc usuwamy te węzły z klonu przed sprawdzeniem —
+    // inaczej test sprawdzałby nie to, co deklaruje.
     const d = doc(path);
-    const visible = d.body.textContent;
+    const bodyClone = d.body.cloneNode(true);
+    for (const el of bodyClone.querySelectorAll('script, style')) el.remove();
+    const visible = bodyClone.textContent;
     expect(visible).not.toContain('null');
     expect(visible).not.toContain('undefined');
     expect(visible).not.toMatch(/\bNaN\b/);
