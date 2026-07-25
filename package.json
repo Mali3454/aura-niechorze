@@ -1,19 +1,23 @@
 {
   "name": "aura-niechorze",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "astro build && vitest run",
+    "test:unit": "vitest run"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@astrojs/sitemap": "^3.2.0",
+    "@fontsource-variable/outfit": "^5.1.0",
+    "astro": "^5",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.5.2",
-    "vite": "^6.3.4"
+    "linkedom": "^0.18.5",
+    "vitest": "^2.1.0"
   }
 }

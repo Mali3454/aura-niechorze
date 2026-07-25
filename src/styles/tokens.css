@@ -1,0 +1,25 @@
+:root {
+  --navy: #04477A;
+  --navy-deep: #024076;
+  --white: #FFFFFF;
+  --mist: #EEF3F8;
+  --sky: #8FC4E8;
+
+  --font: 'Outfit Variable', system-ui, -apple-system, sans-serif;
+
+  --step-0: clamp(1rem, 0.96rem + 0.18vw, 1.09rem);
+  --step-1: clamp(1.2rem, 1.12rem + 0.38vw, 1.44rem);
+  --step-2: clamp(1.44rem, 1.3rem + 0.7vw, 1.9rem);
+  --step-3: clamp(1.73rem, 1.5rem + 1.15vw, 2.5rem);
+  --step-4: clamp(2.07rem, 1.7rem + 1.85vw, 3.3rem);
+  --step-5: clamp(2.49rem, 1.9rem + 2.9vw, 4.4rem);
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.75rem;
+  --space-4: 3rem;
+  --space-5: 5rem;
+
+  --measure: 34ch;
+  --radius-pill: 999px;
+}
