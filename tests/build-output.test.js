@@ -157,18 +157,55 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(cta).not.toBeNull();
   });
 
-  it('slajd o obiekcie ma trzy liczby i zdjęcie z alt', () => {
+  it('slajd o obiekcie ma trzy liczby jako prawdziwą listę definicji i zdjęcie z alt', () => {
     const d = doc(path);
-    expect(d.querySelectorAll('#obiekt .stat')).toHaveLength(3);
+    const stats = [...d.querySelectorAll('#obiekt .stat')];
+    expect(stats).toHaveLength(3);
+    for (const stat of stats) {
+      const dt = stat.querySelector('dt');
+      const dd = stat.querySelector('dd');
+      expect(dt.tagName, 'etykieta statystyki musi być <dt>').toBe('DT');
+      expect(dd.tagName, 'wartość statystyki musi być <dd>').toBe('DD');
+      // dt musi poprzedzać dd w DOM (semantyka listy definicji), nawet jeśli
+      // wizualnie liczba jest nad podpisem dzięki column-reverse w CSS.
+      const order = [...stat.children].map((el) => el.tagName);
+      expect(order.indexOf('DT'), 'dt musi poprzedzać dd w kodzie źródłowym').toBeLessThan(order.indexOf('DD'));
+    }
     const img = d.querySelector('#obiekt img');
     expect(img.getAttribute('alt').length).toBeGreaterThan(20);
     expect(img.getAttribute('loading')).toBe('lazy');
+    // zdjęcie nie jest LCP (to zdjęcie startowe) — na szerokich ekranach zajmuje
+    // ok. połowę szerokości, więc nie może rywalizować o pasmo z heroem.
+    expect(img.getAttribute('sizes')).toBe('(max-width: 60rem) 100vw, 44vw');
   });
 
-  it('slajd okolicy ma listę odległości i trzy atrakcje', () => {
+  it('slajd okolicy ma listę odległości jako prawdziwą listę definicji i trzy atrakcje', () => {
     const d = doc(path);
-    expect(d.querySelectorAll('#okolica .distance').length).toBeGreaterThanOrEqual(6);
+    const distances = [...d.querySelectorAll('#okolica .distance')];
+    expect(distances.length).toBeGreaterThanOrEqual(6);
+    for (const distance of distances) {
+      const dt = distance.querySelector('dt');
+      const dd = distance.querySelector('dd');
+      expect(dt.tagName, 'nazwa odległości musi być <dt>').toBe('DT');
+      expect(dd.tagName, 'wartość odległości musi być <dd>').toBe('DD');
+      const order = [...distance.children].map((el) => el.tagName);
+      expect(order.indexOf('DT'), 'dt musi poprzedzać dd w kodzie źródłowym').toBeLessThan(order.indexOf('DD'));
+    }
     expect(d.querySelectorAll('#okolica .attraction')).toHaveLength(3);
+  });
+
+  it('nagłówki slajdów obiektu i okolicy to h2, a podnagłówki wewnątrz to h3', () => {
+    const d = doc(path);
+    const obiektTitle = d.getElementById('obiekt-title');
+    const okolicaTitle = d.getElementById('okolica-title');
+    expect(obiektTitle.tagName).toBe('H2');
+    expect(okolicaTitle.tagName).toBe('H2');
+    for (const h of d.querySelectorAll('#obiekt h3, #okolica h3')) {
+      expect(h.tagName).toBe('H3');
+    }
+    // brak nagłówków o niższym poziomie niż h3 wewnątrz tych dwóch slajdów
+    expect(d.querySelectorAll('#obiekt h4, #obiekt h5, #obiekt h6')).toHaveLength(0);
+    expect(d.querySelectorAll('#okolica h4, #okolica h5, #okolica h6')).toHaveLength(0);
   });
 
   it('nie publikuje danych niepotwierdzonych', () => {
