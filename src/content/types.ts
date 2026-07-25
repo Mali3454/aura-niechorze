@@ -22,6 +22,7 @@ export interface SiteContent {
     h2: string; lead: string;
     amenities: string[];
     rules: string[];
+    petsPolicy: string;
     gallery: { open: string; close: string; prev: string; next: string; label: string };
   };
   area: { h2: string; lead: string; distancesLabel: string; distances: Distance[]; attractions: Attraction[] };

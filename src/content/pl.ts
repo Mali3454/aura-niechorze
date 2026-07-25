@@ -5,6 +5,8 @@ const beach = hasFact(FACTS.beachDistanceM)
   ? `${FACTS.beachDistanceM} metrów od morza`
   : 'tuż przy plaży';
 
+const petsPolicy = 'Zwierzęta po uzgodnieniu';
+
 export const pl: SiteContent = {
   lang: 'pl',
   htmlLang: 'pl-PL',
@@ -59,10 +61,11 @@ export const pl: SiteContent = {
     rules: [
       `Zameldowanie ${FACTS.checkinFrom}–${FACTS.checkinTo}`,
       `Wymeldowanie ${FACTS.checkoutFrom}–${FACTS.checkoutTo}`,
-      'Zwierzęta po uzgodnieniu',
+      petsPolicy,
       'Obiekt bez palenia',
       `Łóżeczko dziecięce ${FACTS.cribPrice} za dobę`,
     ],
+    petsPolicy,
     gallery: {
       open: 'Powiększ zdjęcie',
       close: 'Zamknij',

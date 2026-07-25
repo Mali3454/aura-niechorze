@@ -6,10 +6,11 @@ import ogImage from '../assets/budynek-zmierzch.webp';
 interface Props { content: SiteContent; canonical: string }
 const { content, canonical } = Astro.props;
 
-const amenities = [
-  'Klimatyzacja', 'Bezpłatne WiFi', 'Bezpłatny parking', 'Balkon z widokiem na morze',
-  'Aneks kuchenny', 'Prywatna łazienka', 'Telewizor', 'Ogród', 'Taras',
-].map((name) => ({ '@type': 'LocationFeatureSpecification', name, value: true }));
+const amenities = content.apartment.amenities.map((name) => ({
+  '@type': 'LocationFeatureSpecification',
+  name,
+  value: true,
+}));
 
 const data = {
   '@context': 'https://schema.org',
@@ -29,7 +30,7 @@ const data = {
   },
   checkinTime: FACTS.checkinFrom,
   checkoutTime: FACTS.checkoutTo,
-  petsAllowed: true,
+  petsAllowed: content.apartment.petsPolicy,
   smokingAllowed: false,
   numberOfRooms: 1,
   amenityFeature: amenities,

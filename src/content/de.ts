@@ -5,6 +5,8 @@ const beach = hasFact(FACTS.beachDistanceM)
   ? `${FACTS.beachDistanceM} Meter bis zum Meer`
   : 'direkt am Strand';
 
+const petsPolicy = 'Haustiere nach Absprache';
+
 export const de: SiteContent = {
   lang: 'de',
   htmlLang: 'de-DE',
@@ -58,10 +60,11 @@ export const de: SiteContent = {
     rules: [
       `Anreise ${FACTS.checkinFrom}–${FACTS.checkinTo} Uhr`,
       `Abreise ${FACTS.checkoutFrom}–${FACTS.checkoutTo} Uhr`,
-      'Haustiere nach Absprache',
+      petsPolicy,
       'Nichtraucherunterkunft',
       `Kinderbett ${FACTS.cribPrice} pro Nacht`,
     ],
+    petsPolicy,
     gallery: {
       open: 'Foto vergrößern',
       close: 'Schließen',

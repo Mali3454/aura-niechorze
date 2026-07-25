@@ -5,6 +5,8 @@ const beach = hasFact(FACTS.beachDistanceM)
   ? `${FACTS.beachDistanceM} m from the sea`
   : 'right by the beach';
 
+const petsPolicy = 'Pets by arrangement';
+
 export const en: SiteContent = {
   lang: 'en',
   htmlLang: 'en-GB',
@@ -58,10 +60,11 @@ export const en: SiteContent = {
     rules: [
       `Check-in ${FACTS.checkinFrom}–${FACTS.checkinTo}`,
       `Check-out ${FACTS.checkoutFrom}–${FACTS.checkoutTo}`,
-      'Pets by arrangement',
+      petsPolicy,
       'Non-smoking property',
       `Cot ${FACTS.cribPrice} per night`,
     ],
+    petsPolicy,
     gallery: {
       open: 'Enlarge photo',
       close: 'Close',

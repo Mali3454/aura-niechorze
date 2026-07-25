@@ -8,6 +8,19 @@ export function doc(path) {
   return parseHTML(readFileSync(path, 'utf8')).document;
 }
 
+// Zwraca listę ścieżek (np. "address.addressRegion" albo "amenityFeature[2].name"),
+// pod którymi w dowolnie zagnieżdżonej strukturze występuje null.
+function findNulls(value, path = '$') {
+  if (value === null) return [path];
+  if (Array.isArray(value)) {
+    return value.flatMap((item, i) => findNulls(item, `${path}[${i}]`));
+  }
+  if (typeof value === 'object' && value !== undefined) {
+    return Object.entries(value).flatMap(([key, v]) => findNulls(v, `${path}.${key}`));
+  }
+  return [];
+}
+
 const PAGES = [
   { path: 'dist/index.html', lang: 'pl-PL', url: 'https://aura-niechorze.pl/' },
   { path: 'dist/de/index.html', lang: 'de-DE', url: 'https://aura-niechorze.pl/de/' },
@@ -89,8 +102,7 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(visible).not.toMatch(/\bNaN\b/);
 
     const ld = JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent);
-    for (const [key, value] of Object.entries(ld)) {
-      expect(value, `klucz ${key} w JSON-LD ma wartość pustą`).not.toBeNull();
-    }
+    const nullPaths = findNulls(ld);
+    expect(nullPaths, `null znaleziony w JSON-LD pod: ${nullPaths.join(', ')}`).toEqual([]);
   });
 });
