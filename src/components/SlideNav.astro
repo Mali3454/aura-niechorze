@@ -1,0 +1,48 @@
+---
+interface Props { ids: string[]; names: string[]; label: string }
+const { ids, names, label } = Astro.props;
+---
+<nav class="dots" aria-label={label}>
+  <ul>
+    {ids.map((id, i) => (
+      <li>
+        <a href={`#${id}`} data-dot={id}>
+          <span class="visually-hidden">{names[i]}</span>
+          <span class="dots__mark" aria-hidden="true"></span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .dots { position: fixed; right: clamp(0.75rem, 2vw, 1.75rem); top: 50%; transform: translateY(-50%); z-index: 20; }
+  .dots ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .dots a { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; }
+  .dots__mark {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor; opacity: 0.35; transition: opacity .25s, transform .25s;
+  }
+  .dots a[aria-current="true"] .dots__mark { opacity: 1; transform: scale(1.5); }
+  @media (prefers-reduced-motion: reduce) { .dots__mark { transition: none; } }
+  @media (max-width: 40rem) { .dots { display: none; } }
+</style>
+
+<script>
+  const links = document.querySelectorAll('.dots a');
+  const byId = new Map([...links].map((a) => [a.dataset.dot, a]));
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        for (const a of links) a.removeAttribute('aria-current');
+        byId.get(e.target.id)?.setAttribute('aria-current', 'true');
+      }
+    },
+    { threshold: 0.55 }
+  );
+  for (const id of byId.keys()) {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  }
+</script>

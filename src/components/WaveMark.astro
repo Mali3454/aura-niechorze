@@ -1,0 +1,15 @@
+---
+interface Props { fill: string }
+const { fill } = Astro.props;
+---
+<svg class="wavemark" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  <path d="M0,52 C240,4 480,88 720,52 C960,16 1200,84 1440,40 L1440,0 L0,0 Z" fill={fill} />
+</svg>
+
+<style>
+  .wavemark {
+    position: absolute; inset: 0 0 auto 0;
+    width: 100%; height: clamp(38px, 5vw, 78px);
+    display: block; pointer-events: none;
+  }
+</style>

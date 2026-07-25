@@ -1,0 +1,21 @@
+---
+import WaveMark from './WaveMark.astro';
+
+interface Props {
+  id: string;
+  variant?: 'photo' | 'white' | 'mist' | 'navy';
+  class?: string;
+  waveFrom?: 'white' | 'mist' | 'navy' | null;
+}
+const { id, variant = 'white', class: cls = '', waveFrom = null } = Astro.props;
+
+const FILL = {
+  white: 'var(--white)',
+  mist: 'var(--mist)',
+  navy: 'var(--navy-deep)',
+};
+---
+<section id={id} aria-labelledby={`${id}-title`} class:list={['slide', `slide--${variant}`, cls]}>
+  {waveFrom && <WaveMark fill={FILL[waveFrom]} />}
+  <div class="slide__inner"><slot /></div>
+</section>

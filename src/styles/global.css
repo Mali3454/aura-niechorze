@@ -27,3 +27,28 @@ a { color: inherit; }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+
+.slides {
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+.slide {
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  display: grid;
+  align-content: center;
+  padding: clamp(4rem, 12vh, 8rem) clamp(1.25rem, 6vw, 6rem);
+  position: relative;
+}
+.slide__inner { width: min(100%, 78rem); margin-inline: auto; }
+.slide--white { background: var(--white); color: var(--navy); }
+.slide--mist  { background: var(--mist);  color: var(--navy); }
+.slide--navy  { background: var(--navy-deep); color: var(--white); }
+.slide--photo { color: var(--white); }
+
+@media (prefers-reduced-motion: reduce) {
+  .slides { scroll-behavior: auto; }
+}

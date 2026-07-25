@@ -1,7 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { de } from '../../content/de';
+import Chrome from '../../components/Chrome.astro';
+import Slide from '../../components/Slide.astro';
+import SlideNav from '../../components/SlideNav.astro';
+import { de as c } from '../../content/de';
+
+const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
 ---
-<Base content={de}>
-  <main id="tresc"><h1>{de.hero.h1}</h1></main>
+<Base content={c}>
+  <Chrome content={c} />
+  <SlideNav ids={IDS} names={c.chrome.slideNames} label={c.chrome.navLabel} />
+  <main id="tresc" class="slides">
+    <Slide id="start" variant="navy"><h1 id="start-title">{c.hero.h1}</h1></Slide>
+    <Slide id="obiekt" variant="mist" waveFrom="navy"><h2 id="obiekt-title">{c.about.h2}</h2></Slide>
+    <Slide id="apartament" variant="navy" waveFrom="mist"><h2 id="apartament-title">{c.apartment.h2}</h2></Slide>
+    <Slide id="okolica" variant="white" waveFrom="navy"><h2 id="okolica-title">{c.area.h2}</h2></Slide>
+    <Slide id="kontakt" variant="navy" waveFrom="white"><h2 id="kontakt-title">{c.contact.h2}</h2></Slide>
+  </main>
 </Base>

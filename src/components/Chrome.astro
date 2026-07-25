@@ -1,0 +1,69 @@
+---
+import Logo from './Logo.astro';
+import { FACTS } from '../content/facts';
+import type { SiteContent, Lang } from '../content/types';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const PATHS: Record<Lang, string> = { pl: '/', de: '/de/', en: '/en/' };
+const HREF_LANGS: Record<Lang, string> = { pl: 'pl-PL', de: 'de-DE', en: 'en-GB' };
+const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
+---
+<header class="chrome">
+  <a class="chrome__logo" href={PATHS[content.lang]} aria-label={FACTS.name}>
+    <Logo variant="white" />
+  </a>
+
+  <nav class="chrome__lang" aria-label={content.chrome.langLabel}>
+    {ALL_LANGS.map((l) => (
+      <a
+        href={PATHS[l]}
+        hreflang={HREF_LANGS[l]}
+        lang={HREF_LANGS[l]}
+        aria-current={l === content.lang ? 'true' : undefined}
+        class={l === content.lang ? 'chrome__lang-current' : undefined}
+      >
+        <span class="visually-hidden">{content.chrome.langNames[l]}</span>
+        <span aria-hidden="true">{l.toUpperCase()}</span>
+      </a>
+    ))}
+  </nav>
+
+  <a class="chrome__call" href={FACTS.phoneHref}>
+    <span class="visually-hidden">{content.chrome.callLabel}: </span>
+    {FACTS.phoneDisplay}
+  </a>
+</header>
+
+<style>
+  .chrome {
+    position: fixed; inset: 0 0 auto 0; z-index: 20;
+    display: flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-2) clamp(1.25rem, 6vw, 6rem);
+    color: var(--white);
+    pointer-events: none;
+  }
+  .chrome > * { pointer-events: auto; }
+  .chrome__logo { width: clamp(74px, 8vw, 108px); margin-inline-end: auto; }
+  .chrome__lang { display: flex; gap: 0.15rem; font-size: 0.82rem; font-weight: 600; }
+  .chrome__lang a, .chrome__lang-current {
+    display: grid; place-items: center; min-width: 2.25rem; min-height: 2.25rem;
+    border-radius: var(--radius-pill); text-decoration: none;
+  }
+  .chrome__lang-current { background: rgba(255,255,255,0.22); }
+  .chrome__lang a:hover { background: rgba(255,255,255,0.12); }
+  .chrome__call {
+    border: 1px solid rgba(255,255,255,0.75); border-radius: var(--radius-pill);
+    padding: 0.6rem 1.15rem; font-weight: 600; text-decoration: none; white-space: nowrap;
+  }
+  .chrome__call:hover { background: var(--white); color: var(--navy); }
+
+  @media (max-width: 40rem) {
+    .chrome__call {
+      position: fixed; inset: auto 0 0 0; z-index: 30;
+      border: 0; border-radius: 0; text-align: center;
+      background: var(--navy); color: var(--white);
+      padding: 1rem; font-size: 1.05rem;
+    }
+  }
+</style>

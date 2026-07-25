@@ -92,6 +92,43 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(data.amenityFeature.length).toBeGreaterThan(4);
   });
 
+  it('ma pięć sekcji-slajdów o ustalonych identyfikatorach', () => {
+    const ids = [...doc(path).querySelectorAll('main section')].map((s) => s.id);
+    expect(ids).toEqual(['start', 'obiekt', 'apartament', 'okolica', 'kontakt']);
+  });
+
+  it('każdy slajd ma nagłówek powiązany przez aria-labelledby', () => {
+    const d = doc(path);
+    for (const s of d.querySelectorAll('main section')) {
+      const ref = s.getAttribute('aria-labelledby');
+      expect(ref, `sekcja #${s.id} bez aria-labelledby`).toBe(`${s.id}-title`);
+      expect(d.getElementById(ref), `brak nagłówka #${ref}`).not.toBeNull();
+    }
+  });
+
+  it('kolejność nagłówków to jedno h1 i cztery h2', () => {
+    const levels = [...doc(path).querySelectorAll('main h1, main h2')].map((h) => h.tagName);
+    expect(levels).toEqual(['H1', 'H2', 'H2', 'H2', 'H2']);
+  });
+
+  it('ma nawigację z kotwicami do wszystkich slajdów', () => {
+    const hrefs = [...doc(path).querySelectorAll('nav a')].map((a) => a.getAttribute('href'));
+    for (const id of ['start', 'obiekt', 'apartament', 'okolica', 'kontakt']) {
+      expect(hrefs).toContain(`#${id}`);
+    }
+  });
+
+  it('ma klikalny telefon w stałej warstwie', () => {
+    const tel = doc(path).querySelector('a[href^="tel:"]');
+    expect(tel).not.toBeNull();
+    expect(tel.getAttribute('href')).toBe('tel:+48576040656');
+  });
+
+  it('przełącznik języka prowadzi do pozostałych wersji', () => {
+    const hrefs = [...doc(path).querySelectorAll('a[hreflang]')].map((a) => a.getAttribute('href'));
+    expect(hrefs).toEqual(expect.arrayContaining(['/', '/de/', '/en/']));
+  });
+
   it('nie publikuje danych niepotwierdzonych', () => {
     // Celowo sprawdzamy tekst widoczny dla użytkownika i JSON-LD, a nie całe
     // źródło — słowo "null" legalnie występuje w kodzie skryptów komponentów.
