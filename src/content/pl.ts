@@ -9,7 +9,8 @@ export const pl: SiteContent = {
   lang: 'pl',
   htmlLang: 'pl-PL',
   meta: {
-    title: 'Aura Niechorze — apartamenty przy plaży',
+    // nazwa obiektu ma być bajtowo identyczna wszędzie — jedno źródło prawdy
+    title: FACTS.name,
     description:
       'Dwupoziomowy apartament dla 4 osób w Niechorzu, tuż przy plaży, w sosnowym lesie. Balkon z widokiem na morze, klimatyzacja, bezpłatny parking.',
     ogAlt: 'Budynek apartamentów Aura w Niechorzu o zmierzchu, z podświetlonymi balkonami na tle sosen',

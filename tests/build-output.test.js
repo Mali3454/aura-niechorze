@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { parseHTML } from 'linkedom';
+import { FACTS } from '../src/content/facts.ts';
 
 export function doc(path) {
   expect(existsSync(path), `brak pliku ${path} — czy build się wykonał?`).toBe(true);
@@ -12,6 +13,12 @@ const PAGES = [
   { path: 'dist/de/index.html', lang: 'de-DE', url: 'https://aura-niechorze.pl/de/' },
   { path: 'dist/en/index.html', lang: 'en-GB', url: 'https://aura-niechorze.pl/en/' },
 ];
+
+describe('nazwa obiektu w gotowym HTML', () => {
+  it('tytuł strony polskiej jest bajtowo identyczny z FACTS.name', () => {
+    expect(doc('dist/index.html').querySelector('title').textContent).toBe(FACTS.name);
+  });
+});
 
 describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
   it('ma poprawny atrybut lang', () => {

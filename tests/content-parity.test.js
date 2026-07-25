@@ -12,6 +12,14 @@ function paths(obj, prefix = '') {
   );
 }
 
+describe('nazwa obiektu ma jedno źródło prawdy', () => {
+  // Wersje de i en mają celowo inne tytuły; bajtowo identyczna ma być
+  // nazwa polska, i ma pochodzić z FACTS, a nie być przepisana z ręki.
+  it('polski tytuł to dokładnie FACTS.name', () => {
+    expect(pl.meta.title).toBe(FACTS.name);
+  });
+});
+
 describe('tłumaczenia są kompletne', () => {
   it.each([['de', de], ['en', en]])('%s ma dokładnie te same klucze co pl', (_, other) => {
     expect(paths(other).sort()).toEqual(paths(pl).sort());
