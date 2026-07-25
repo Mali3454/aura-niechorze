@@ -53,7 +53,7 @@ Poniższe obowiązują w każdym zadaniu i nie są powtarzane w treści zadań.
 
 ---
 
-### Zadanie 1: Fundament — Astro, tokeny, font, harness testowy
+### Task 1 — Fundament — Astro, tokeny, font, harness testowy
 
 **Pliki:**
 - Modyfikuj: `package.json`
@@ -311,7 +311,7 @@ git commit -m "feat: fundament Astro z tokenami, fontem i harnessem testowym"
 
 ---
 
-### Zadanie 2: Zasoby — zdjęcia, logo SVG, favicon
+### Task 2 — Zasoby — zdjęcia, logo SVG, favicon
 
 **Pliki:**
 - Utwórz: `src/assets/` (przeniesione zdjęcia)
@@ -464,7 +464,7 @@ Uwaga: zdjęcia nie były dotąd śledzone przez gita. `git add -A` doda je do r
 
 ---
 
-### Zadanie 3: Treść w trzech językach, layout, meta i hreflang
+### Task 3 — Treść w trzech językach, layout, meta i hreflang
 
 **Pliki:**
 - Utwórz: `src/content/types.ts`
@@ -947,7 +947,7 @@ git commit -m "feat: treść w trzech językach, layout bazowy, hreflang i meta"
 
 ---
 
-### Zadanie 4: Dane strukturalne, sitemap, robots
+### Task 4 — Dane strukturalne, sitemap, robots
 
 **Pliki:**
 - Utwórz: `src/components/StructuredData.astro`
@@ -1093,7 +1093,7 @@ git commit -m "feat: dane strukturalne LodgingBusiness, sitemap i robots"
 
 ---
 
-### Zadanie 5: Ramka slajdów, stała warstwa i nawigacja
+### Task 5 — Ramka slajdów, stała warstwa i nawigacja
 
 **Pliki:**
 - Utwórz: `src/components/Slide.astro`
@@ -1422,7 +1422,7 @@ git commit -m "feat: ramka slajdów na scroll-snap, stała warstwa i nawigacja k
 
 ---
 
-### Zadanie 6: Slajd 1 — Otwarcie
+### Task 6 — Slajd 1 — Otwarcie
 
 **Pliki:**
 - Utwórz: `src/components/slides/Hero.astro`
@@ -1544,7 +1544,7 @@ git commit -m "feat: slajd otwierający ze zdjęciem budynku i przyciskiem telef
 
 ---
 
-### Zadanie 7: Slajdy 2 i 4 — O obiekcie oraz Okolica
+### Task 7 — Slajdy 2 i 4 — O obiekcie oraz Okolica
 
 **Pliki:**
 - Utwórz: `src/components/slides/About.astro`
@@ -1710,7 +1710,7 @@ git commit -m "feat: slajdy o obiekcie i o okolicy"
 
 ---
 
-### Zadanie 8: Slajd 3 — Apartament z galerią
+### Task 8 — Slajd 3 — Apartament z galerią
 
 **Pliki:**
 - Utwórz: `src/components/Gallery.astro`
@@ -1954,7 +1954,7 @@ git commit -m "feat: slajd apartamentu z galerią w dialogu"
 
 ---
 
-### Zadanie 9: Slajd 5 — Kontakt, mapa na żądanie, stopka
+### Task 9 — Slajd 5 — Kontakt, mapa na żądanie, stopka
 
 **Pliki:**
 - Utwórz: `src/components/slides/Contact.astro`
@@ -2111,7 +2111,7 @@ git commit -m "feat: slajd kontaktu z mapą ładowaną na żądanie i stopką"
 
 ---
 
-### Zadanie 10: Intro z animowanym logo
+### Task 10 — Intro z animowanym logo
 
 **Pliki:**
 - Utwórz: `src/components/Intro.astro`
@@ -2249,7 +2249,7 @@ git commit -m "feat: animowane intro z logo, pomijalne i jednorazowe"
 
 ---
 
-### Zadanie 11: Testy dostępności end-to-end
+### Task 11 — Testy dostępności end-to-end
 
 **Pliki:**
 - Modyfikuj: `package.json`
@@ -2388,7 +2388,7 @@ git commit -m "test: testy dostępności axe, klawiatury i ograniczonych animacj
 
 ---
 
-### Zadanie 12: Kontrast stałej warstwy, wydajność, pomiar i wdrożenie
+### Task 12 — Kontrast stałej warstwy, wydajność, pomiar i wdrożenie
 
 **Pliki:**
 - Modyfikuj: `src/components/Chrome.astro`
