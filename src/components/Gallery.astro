@@ -1,0 +1,105 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { SiteContent } from '../content/types';
+
+interface Props {
+  images: { src: ImageMetadata; alt: string }[];
+  labels: SiteContent['apartment']['gallery'];
+}
+const { images, labels } = Astro.props;
+---
+<div class="gallery" data-gallery>
+  <ul class="gallery__grid">
+    {images.map((img, i) => (
+      <li>
+        <button type="button" class="gallery__item" data-index={i} aria-label={`${labels.open}: ${img.alt}`}>
+          <Picture
+            src={img.src}
+            formats={['avif', 'webp']}
+            widths={[280, 560, 840]}
+            sizes="(max-width: 40rem) 45vw, 22vw"
+            alt={img.alt}
+            loading="lazy"
+          />
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <dialog class="gallery__dialog" aria-label={labels.label}>
+    <figure>
+      <img data-gallery-image src="" alt="" />
+      <figcaption data-gallery-caption></figcaption>
+    </figure>
+    <button type="button" data-gallery-prev aria-label={labels.prev}>&#8592;</button>
+    <button type="button" data-gallery-next aria-label={labels.next}>&#8594;</button>
+    <button type="button" data-gallery-close aria-label={labels.close}>&#215;</button>
+  </dialog>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll('[data-gallery]')) {
+    const buttons = [...root.querySelectorAll('.gallery__item')];
+    const dialog = root.querySelector('dialog');
+    const image = root.querySelector('[data-gallery-image]');
+    const caption = root.querySelector('[data-gallery-caption]');
+    let current = 0;
+    let opener;
+
+    const sources = buttons.map((b) => {
+      const img = b.querySelector('img');
+      return { src: img.currentSrc || img.src, srcset: img.srcset, alt: img.alt };
+    });
+
+    function show(i) {
+      current = (i + sources.length) % sources.length;
+      const s = sources[current];
+      image.src = s.src;
+      image.srcset = s.srcset;
+      image.alt = s.alt;
+      caption.textContent = s.alt;
+    }
+
+    buttons.forEach((b, i) =>
+      b.addEventListener('click', () => {
+        opener = b;
+        show(i);
+        dialog.showModal();
+      })
+    );
+
+    root.querySelector('[data-gallery-prev]').addEventListener('click', () => show(current - 1));
+    root.querySelector('[data-gallery-next]').addEventListener('click', () => show(current + 1));
+    root.querySelector('[data-gallery-close]').addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+    });
+
+    dialog.addEventListener('close', () => opener?.focus());
+  }
+</script>
+
+<style>
+  .gallery__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 48rem) { .gallery__grid { grid-template-columns: repeat(4, 1fr); } }
+  .gallery__item { padding: 0; border: 0; background: none; cursor: pointer; display: block; width: 100%; }
+  .gallery__item :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .gallery__item:hover :global(img) { opacity: .85; }
+
+  .gallery__dialog { border: 0; padding: 0; background: var(--navy-deep); max-width: 96vw; max-height: 92dvh; color: var(--white); }
+  .gallery__dialog::backdrop { background: rgba(2,64,118,.92); }
+  .gallery__dialog figure { margin: 0; }
+  .gallery__dialog img { max-height: 78dvh; width: auto; margin-inline: auto; }
+  .gallery__dialog figcaption { padding: .85rem 1.25rem; font-size: .85rem; opacity: .85; max-width: 60ch; }
+  .gallery__dialog button {
+    position: absolute; background: rgba(255,255,255,.14); color: var(--white);
+    border: 0; border-radius: 50%; width: 2.75rem; height: 2.75rem; font-size: 1.2rem; cursor: pointer;
+  }
+  .gallery__dialog button:hover { background: rgba(255,255,255,.28); }
+  [data-gallery-prev] { left: .75rem; top: 50%; }
+  [data-gallery-next] { right: .75rem; top: 50%; }
+  [data-gallery-close] { right: .75rem; top: .75rem; }
+</style>

@@ -5,6 +5,7 @@ import Slide from '../../components/Slide.astro';
 import SlideNav from '../../components/SlideNav.astro';
 import Hero from '../../components/slides/Hero.astro';
 import About from '../../components/slides/About.astro';
+import Apartment from '../../components/slides/Apartment.astro';
 import Area from '../../components/slides/Area.astro';
 import { en as c } from '../../content/en';
 
@@ -16,7 +17,7 @@ const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
   <main id="tresc" class="slides">
     <Hero content={c} />
     <About content={c} />
-    <Slide id="apartament" variant="navy" waveFrom="mist"><h2 id="apartament-title">{c.apartment.h2}</h2></Slide>
+    <Apartment content={c} />
     <Area content={c} />
     <Slide id="kontakt" variant="navy" waveFrom="white"><h2 id="kontakt-title">{c.contact.h2}</h2></Slide>
   </main>

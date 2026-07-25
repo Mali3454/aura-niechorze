@@ -179,6 +179,32 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(img.getAttribute('sizes')).toBe('(max-width: 60rem) 100vw, 44vw');
   });
 
+  it('galeria ma miniatury z alt i przyciski otwierające', () => {
+    const d = doc(path);
+    const thumbs = d.querySelectorAll('#apartament .gallery__item');
+    expect(thumbs.length).toBeGreaterThanOrEqual(6);
+    for (const t of thumbs) {
+      expect(t.tagName).toBe('BUTTON');
+      expect(t.querySelector('img').getAttribute('alt').length).toBeGreaterThan(15);
+    }
+  });
+
+  it('galeria ma dialog z przyciskami nawigacji opisanymi tekstowo', () => {
+    const dlg = doc(path).querySelector('#apartament dialog');
+    expect(dlg).not.toBeNull();
+    for (const sel of ['[data-gallery-prev]', '[data-gallery-next]', '[data-gallery-close]']) {
+      const btn = dlg.querySelector(sel);
+      expect(btn, `brak ${sel}`).not.toBeNull();
+      expect((btn.getAttribute('aria-label') || btn.textContent).trim().length).toBeGreaterThan(3);
+    }
+  });
+
+  it('slajd apartamentu wypisuje wyposażenie i zasady', () => {
+    const d = doc(path);
+    expect(d.querySelectorAll('#apartament .amenity').length).toBeGreaterThanOrEqual(10);
+    expect(d.querySelectorAll('#apartament .rule').length).toBeGreaterThanOrEqual(5);
+  });
+
   it('slajd okolicy ma listę odległości jako prawdziwą listę definicji i trzy atrakcje', () => {
     const d = doc(path);
     const distances = [...d.querySelectorAll('#okolica .distance')];

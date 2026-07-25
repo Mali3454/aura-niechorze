@@ -1,0 +1,54 @@
+---
+import Slide from '../Slide.astro';
+import Gallery from '../Gallery.astro';
+import type { SiteContent } from '../../content/types';
+import salon from '../../assets/salon-okno.webp';
+import salonStol from '../../assets/salon-2.webp';
+import aneks from '../../assets/aneks-kuchenny.webp';
+import salonZGory from '../../assets/salon-widok-z-gory.webp';
+import sypialnia from '../../assets/sypialnia-antresola.webp';
+import sypialniaOkno from '../../assets/sypialnia-4.webp';
+import lazienka from '../../assets/lazienka-1.webp';
+import kosmetyki from '../../assets/lazienka-kosmetyki.webp';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+
+const images = [
+  { src: salon, alt: content.alts.salon },
+  { src: salonStol, alt: content.alts.salonStol },
+  { src: aneks, alt: content.alts.aneks },
+  { src: salonZGory, alt: content.alts.salonZGory },
+  { src: sypialnia, alt: content.alts.sypialnia },
+  { src: sypialniaOkno, alt: content.alts.sypialniaOkno },
+  { src: lazienka, alt: content.alts.lazienka },
+  { src: kosmetyki, alt: content.alts.kosmetyki },
+];
+---
+<Slide id="apartament" variant="navy" waveFrom="mist" class="apt">
+  <h2 id="apartament-title">{content.apartment.h2}</h2>
+  <p class="apt__lead">{content.apartment.lead}</p>
+
+  <Gallery images={images} labels={content.apartment.gallery} />
+
+  <div class="apt__cols">
+    <ul class="apt__amenities">
+      {content.apartment.amenities.map((a) => <li class="amenity">{a}</li>)}
+    </ul>
+    <ul class="apt__rules">
+      {content.apartment.rules.map((r) => <li class="rule">{r}</li>)}
+    </ul>
+  </div>
+</Slide>
+
+<style>
+  h2 { font-size: var(--step-4); }
+  .apt__lead { margin-top: var(--space-2); font-size: var(--step-1); max-width: var(--measure); }
+  .apt :global(.gallery) { margin-top: var(--space-3); }
+  .apt__cols { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+  @media (min-width: 60rem) { .apt__cols { grid-template-columns: 2fr 1fr; } }
+  .apt__amenities, .apt__rules { list-style: none; margin: 0; padding: 0; }
+  .apt__amenities { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .amenity { border: 1px solid rgba(255,255,255,.35); border-radius: var(--radius-pill); padding: .35rem .9rem; font-size: .86rem; }
+  .apt__rules { display: grid; gap: .3rem; font-size: .86rem; opacity: .85; }
+</style>
