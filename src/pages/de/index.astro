@@ -1,12 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Chrome from '../../components/Chrome.astro';
-import Slide from '../../components/Slide.astro';
 import SlideNav from '../../components/SlideNav.astro';
 import Hero from '../../components/slides/Hero.astro';
 import About from '../../components/slides/About.astro';
 import Apartment from '../../components/slides/Apartment.astro';
 import Area from '../../components/slides/Area.astro';
+import Contact from '../../components/slides/Contact.astro';
 import { de as c } from '../../content/de';
 
 const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
@@ -19,6 +19,6 @@ const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
     <About content={c} />
     <Apartment content={c} />
     <Area content={c} />
-    <Slide id="kontakt" variant="navy" waveFrom="white"><h2 id="kontakt-title">{c.contact.h2}</h2></Slide>
+    <Contact content={c} />
   </main>
 </Base>

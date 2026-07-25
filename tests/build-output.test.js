@@ -252,4 +252,23 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     const nullPaths = findNulls(ld);
     expect(nullPaths, `null znaleziony w JSON-LD pod: ${nullPaths.join(', ')}`).toEqual([]);
   });
+
+  it('slajd kontaktu ma telefon, adres i trasę, a mapa nie ładuje się od razu', () => {
+    const d = doc(path);
+    const html = readFileSync(path, 'utf8');
+    expect(d.querySelector('#kontakt a[href^="tel:"]')).not.toBeNull();
+    expect(d.querySelector('#kontakt address')).not.toBeNull();
+    expect(d.querySelector('#kontakt a[href*="google.com/maps/dir"]')).not.toBeNull();
+    expect(html).not.toContain('<iframe');
+  });
+
+  it('nie linkuje Facebooka, dopóki adres jest niepotwierdzony', () => {
+    expect(readFileSync(path, 'utf8')).not.toContain('facebook.com');
+  });
+
+  it('ma stopkę z nazwą obiektu', () => {
+    const f = doc(path).querySelector('footer');
+    expect(f).not.toBeNull();
+    expect(f.textContent).toContain('Aura');
+  });
 });

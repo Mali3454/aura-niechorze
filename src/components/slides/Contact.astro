@@ -1,0 +1,93 @@
+---
+import Slide from '../Slide.astro';
+import Logo from '../Logo.astro';
+import { FACTS, hasFact, ADDRESS_QUERY } from '../../content/facts';
+import type { SiteContent } from '../../content/types';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+
+const mapEmbed = `https://maps.google.com/maps?q=${ADDRESS_QUERY}&output=embed`;
+const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${ADDRESS_QUERY}`;
+const year = new Date().getFullYear();
+---
+<Slide id="kontakt" variant="navy" waveFrom="white" class="contact">
+  <h2 id="kontakt-title">{content.contact.h2}</h2>
+  <p class="contact__lead">{content.contact.lead}</p>
+
+  <a class="contact__phone" href={FACTS.phoneHref}>
+    <span class="visually-hidden">{content.contact.phoneLabel}: </span>
+    {FACTS.phoneDisplay}
+  </a>
+
+  <div class="contact__cols">
+    <div>
+      <h3 class="contact__label">{content.contact.addressLabel}</h3>
+      <address>
+        {FACTS.name}<br />
+        {FACTS.street}<br />
+        {FACTS.postalCode} {FACTS.city}
+      </address>
+      <p class="contact__actions">
+        <a href={routeUrl} rel="noopener">{content.contact.routeCta}</a>
+        {hasFact(FACTS.facebookUrl) && <a href={FACTS.facebookUrl} rel="noopener">{content.contact.fbLabel}</a>}
+      </p>
+    </div>
+
+    <div class="contact__map" data-map data-src={mapEmbed}>
+      <button type="button" data-map-load>{content.contact.mapCta}</button>
+      <p class="contact__map-notice">{content.contact.mapNotice}</p>
+    </div>
+  </div>
+
+  <footer>
+    <Logo variant="white" class="contact__mark" />
+    <p>&copy; {year} {FACTS.name}. {content.footer.rights}</p>
+  </footer>
+</Slide>
+
+<script>
+  for (const box of document.querySelectorAll('[data-map]')) {
+    box.querySelector('[data-map-load]')?.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = box.dataset.src;
+      frame.title = box.querySelector('[data-map-load]').textContent.trim();
+      frame.loading = 'lazy';
+      frame.referrerPolicy = 'no-referrer-when-downgrade';
+      frame.style.cssText = 'width:100%;height:100%;border:0;display:block';
+      box.replaceChildren(frame);
+    });
+  }
+</script>
+
+<style>
+  h2 { font-size: var(--step-4); }
+  .contact__lead { margin-top: var(--space-2); font-size: var(--step-1); }
+  .contact__phone {
+    display: inline-block; margin-top: var(--space-2);
+    font-size: var(--step-4); font-weight: 200; letter-spacing: -.02em; text-decoration: none;
+  }
+  .contact__phone:hover { color: var(--sky); }
+  .contact__cols { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
+  @media (min-width: 60rem) { .contact__cols { grid-template-columns: 1fr 1fr; align-items: start; } }
+  .contact__label { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .65; font-weight: 600; }
+  address { font-style: normal; margin-top: .5rem; line-height: 1.7; }
+  .contact__actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+  .contact__actions a { text-underline-offset: .25em; }
+  .contact__map {
+    aspect-ratio: 16 / 10; background: rgba(255,255,255,.07);
+    display: grid; place-content: center; gap: .75rem; text-align: center; padding: var(--space-2);
+  }
+  .contact__map button {
+    background: var(--white); color: var(--navy); border: 0; border-radius: var(--radius-pill);
+    padding: .8rem 1.7rem; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .contact__map-notice { font-size: .78rem; opacity: .7; max-width: 30ch; margin-inline: auto; }
+  footer {
+    margin-top: var(--space-5); padding-top: var(--space-2);
+    border-top: 1px solid rgba(255,255,255,.18);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+    font-size: .8rem; opacity: .75; flex-wrap: wrap;
+  }
+  .contact :global(.contact__mark) { width: 66px; }
+</style>
