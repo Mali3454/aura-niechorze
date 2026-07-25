@@ -1,0 +1,39 @@
+---
+import { FACTS, hasFact } from '../content/facts';
+import type { SiteContent } from '../content/types';
+import ogImage from '../assets/budynek-zmierzch.webp';
+
+interface Props { content: SiteContent; canonical: string }
+const { content, canonical } = Astro.props;
+
+const amenities = [
+  'Klimatyzacja', 'Bezpłatne WiFi', 'Bezpłatny parking', 'Balkon z widokiem na morze',
+  'Aneks kuchenny', 'Prywatna łazienka', 'Telewizor', 'Ogród', 'Taras',
+].map((name) => ({ '@type': 'LocationFeatureSpecification', name, value: true }));
+
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  name: FACTS.name,
+  description: content.meta.description,
+  url: canonical,
+  telephone: FACTS.phoneHref.replace('tel:', ''),
+  image: 'https://aura-niechorze.pl' + ogImage.src,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: FACTS.street,
+    postalCode: FACTS.postalCode,
+    addressLocality: FACTS.city,
+    addressRegion: FACTS.region,
+    addressCountry: FACTS.country,
+  },
+  checkinTime: FACTS.checkinFrom,
+  checkoutTime: FACTS.checkoutTo,
+  petsAllowed: true,
+  smokingAllowed: false,
+  numberOfRooms: 1,
+  amenityFeature: amenities,
+  ...(hasFact(FACTS.facebookUrl) ? { sameAs: [FACTS.facebookUrl] } : {}),
+};
+---
+<script type="application/ld+json" set:html={JSON.stringify(data)} is:inline />

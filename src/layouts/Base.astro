@@ -5,6 +5,7 @@ import '../styles/global.css';
 import type { SiteContent, Lang } from '../content/types';
 import ogImage from '../assets/budynek-zmierzch.webp';
 import outfitWoff2 from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
+import StructuredData from '../components/StructuredData.astro';
 
 interface Props { content: SiteContent }
 const { content } = Astro.props;
@@ -39,6 +40,7 @@ const canonical = SITE + PATHS[content.lang];
     <meta property="og:image" content={SITE + ogImage.src} />
     <meta property="og:image:alt" content={content.meta.ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <StructuredData content={content} canonical={canonical} />
     <slot name="head" />
   </head>
   <body>

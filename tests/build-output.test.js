@@ -61,4 +61,36 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
   it('nie zawiera słowa „pensjonat”', () => {
     expect(readFileSync(path, 'utf8').toLowerCase()).not.toContain('pensjonat');
   });
+
+  it('zawiera poprawny JSON-LD typu LodgingBusiness', () => {
+    const el = doc(path).querySelector('script[type="application/ld+json"]');
+    expect(el).not.toBeNull();
+    const data = JSON.parse(el.textContent);
+    expect(data['@type']).toBe('LodgingBusiness');
+    expect(data.name).toBe('Aura Niechorze — apartamenty przy plaży');
+    expect(data.telephone).toBe('+48576040656');
+    expect(data.address.streetAddress).toBe('Leśna 9');
+    expect(data.address.postalCode).toBe('72-350');
+    expect(data.address.addressLocality).toBe('Niechorze');
+    expect(data.address.addressCountry).toBe('PL');
+    expect(data.checkinTime).toBe('16:00');
+    expect(data.checkoutTime).toBe('10:00');
+    expect(Array.isArray(data.amenityFeature)).toBe(true);
+    expect(data.amenityFeature.length).toBeGreaterThan(4);
+  });
+
+  it('nie publikuje danych niepotwierdzonych', () => {
+    // Celowo sprawdzamy tekst widoczny dla użytkownika i JSON-LD, a nie całe
+    // źródło — słowo "null" legalnie występuje w kodzie skryptów komponentów.
+    const d = doc(path);
+    const visible = d.body.textContent;
+    expect(visible).not.toContain('null');
+    expect(visible).not.toContain('undefined');
+    expect(visible).not.toMatch(/\bNaN\b/);
+
+    const ld = JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent);
+    for (const [key, value] of Object.entries(ld)) {
+      expect(value, `klucz ${key} w JSON-LD ma wartość pustą`).not.toBeNull();
+    }
+  });
 });
