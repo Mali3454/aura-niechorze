@@ -665,15 +665,19 @@ export const pl: SiteContent = {
   footer: { rights: 'Wszelkie prawa zastrzeżone.' },
   alts: {
     budynek: 'Budynek apartamentów Aura o zmierzchu, podświetlone balkony na tle sosnowego lasu',
-    salon: 'Salon z granatową sofą i wysokim trójkątnym oknem z widokiem na sosny',
-    jadalnia: 'Okrągły drewniany stół z czarnymi krzesłami w części jadalnej',
-    aneks: 'Aneks kuchenny z zabudową i sprzętami',
+    salon: 'Salon z granatową sofą i wysokim skośnym oknem z widokiem na sosny',
+    salonStol: 'Część jadalna salonu z okrągłym drewnianym stołem i czarnymi krzesłami',
+    aneks: 'Aneks kuchenny z pełną zabudową szafek, lodówką i blatem roboczym',
+    salonZGory: 'Widok z antresoli w dół na salon, sofę i schody',
     sypialnia: 'Sypialnia na antresoli z podwójnym łóżkiem i granatową narzutą',
-    lazienka: 'Łazienka z kabiną prysznicową i kosmetykami Aura',
-    balkon: 'Balkon apartamentu z widokiem na okolicę',
+    sypialniaOkno: 'Sypialnia na antresoli z dużym oknem dachowym',
+    lazienka: 'Łazienka z umywalką, lustrem i kabiną prysznicową w granatowych płytkach',
+    kosmetyki: 'Zbliżenie na firmowe kosmetyki Aura przy prysznicu',
   },
 };
 ```
+
+**Klucze `alts` odpowiadają zdjęciom, które faktycznie istnieją.** Zadanie 2 obejrzało wszystkie fotografie i poprawiło pięć nazw, które nie zgadzały się z treścią kadru — nie ma zdjęcia jadalni ani balkonu jako osobnych ujęć. Pełna lista plików w `src/assets/`: `budynek-zmierzch`, `salon-okno`, `salon-2`, `salon-3`, `salon-4`, `salon-widok-z-gory`, `aneks-kuchenny`, `sypialnia-antresola`, `sypialnia-2`, `sypialnia-3`, `sypialnia-4`, `sypialnia-5`, `lazienka-1`, `lazienka-2`, `lazienka-kosmetyki`, `lazienka-kosmetyki-2`, `lazienka-kosmetyki-3`.
 
 - [ ] **Krok 4: Napisz treść niemiecką `src/content/de.ts`**
 
@@ -721,8 +725,7 @@ hero: {
 
 ```astro
 ---
-import '@fontsource-variable/outfit/latin.css';
-import '@fontsource-variable/outfit/latin-ext.css';
+import '@fontsource-variable/outfit/index.css';
 import '../styles/tokens.css';
 import '../styles/global.css';
 import type { SiteContent, Lang } from '../content/types';
@@ -771,10 +774,9 @@ const canonical = SITE + PATHS[content.lang];
 </html>
 ```
 
-Dwie rzeczy zależne od faktycznej zawartości pakietu fontu:
+Ustalenie z zadania 1: pakiet `@fontsource-variable/outfit@5.3.0` **nie ma** plików `latin.css` ani `latin-ext.css`. Ma `index.css`, który zawiera reguły `@font-face` dla obu subsetów naraz, oraz `wght.css`. Dlatego importujemy wyłącznie `index.css` — jeden import, nie dwa.
 
-1. Jeśli w zadaniu 1, krok 4 nazwy plików CSS okazały się inne, popraw dwa pierwsze importy.
-2. Ścieżka do pliku woff2 w imporcie `outfitWoff2` musi istnieć. Sprawdź:
+Ścieżka do pliku woff2 w imporcie `outfitWoff2` musi istnieć. Sprawdź:
 
 ```bash
 ls node_modules/@fontsource-variable/outfit/files/ | grep latin | grep -v ext
@@ -1878,26 +1880,26 @@ import Slide from '../Slide.astro';
 import Gallery from '../Gallery.astro';
 import type { SiteContent } from '../../content/types';
 import salon from '../../assets/salon-okno.webp';
-import jadalnia from '../../assets/jadalnia.webp';
+import salonStol from '../../assets/salon-2.webp';
 import aneks from '../../assets/aneks-kuchenny.webp';
+import salonZGory from '../../assets/salon-widok-z-gory.webp';
 import sypialnia from '../../assets/sypialnia-antresola.webp';
-import sypialnia2 from '../../assets/sypialnia-2.webp';
+import sypialniaOkno from '../../assets/sypialnia-4.webp';
 import lazienka from '../../assets/lazienka-1.webp';
 import kosmetyki from '../../assets/lazienka-kosmetyki.webp';
-import balkon from '../../assets/balkon.webp';
 
 interface Props { content: SiteContent }
 const { content } = Astro.props;
 
 const images = [
   { src: salon, alt: content.alts.salon },
-  { src: jadalnia, alt: content.alts.jadalnia },
+  { src: salonStol, alt: content.alts.salonStol },
   { src: aneks, alt: content.alts.aneks },
+  { src: salonZGory, alt: content.alts.salonZGory },
   { src: sypialnia, alt: content.alts.sypialnia },
-  { src: sypialnia2, alt: content.alts.sypialnia },
+  { src: sypialniaOkno, alt: content.alts.sypialniaOkno },
   { src: lazienka, alt: content.alts.lazienka },
-  { src: kosmetyki, alt: content.alts.lazienka },
-  { src: balkon, alt: content.alts.balkon },
+  { src: kosmetyki, alt: content.alts.kosmetyki },
 ];
 ---
 <Slide id="apartament" variant="navy" waveFrom="mist" class="apt">
@@ -1929,7 +1931,7 @@ const images = [
 </style>
 ```
 
-Dwa zdjęcia sypialni i dwa łazienki dzielą ten sam `alt`, bo przedstawiają to samo pomieszczenie z innego ujęcia. Jeśli po obejrzeniu zdjęć widać wyraźną różnicę (inna sypialnia, inne pomieszczenie), dopisz osobne klucze do `alts` we wszystkich trzech językach.
+Każde z ośmiu zdjęć w galerii ma własny, odrębny `alt` — żaden klucz nie jest użyty dwa razy. Zestaw dobrany tak, żeby pokazać wszystkie pomieszczenia bez powtarzania tego samego ujęcia: dwa kadry salonu, aneks, widok z antresoli, dwa kadry sypialni, łazienka i detal kosmetyków. Pozostałe dziewięć fotografii z `src/assets/` to alternatywne ujęcia tych samych wnętrz i celowo nie trafiają do galerii — więcej zdjęć tego samego pokoju to więcej kilobajtów, nie więcej informacji.
 
 - [ ] **Krok 5: Podłącz w trzech stronach, uruchom testy**
 
