@@ -322,7 +322,7 @@ git commit -m "feat: fundament Astro z tokenami, fontem i harnessem testowym"
 
 **Interfejsy:**
 - Konsumuje: nic.
-- Produkuje: `Logo.astro` z propsami `{ variant: 'navy' | 'white', class?: string, split?: boolean }`. Przy `split={true}` renderuje dwa osobne elementy `<svg class="logo__wave">` i `<svg class="logo__word">` — wymagane przez intro w zadaniu 10. Przy `split={false}` (domyślnie) jeden `<svg>` z całym logo.
+- Produkuje: `Logo.astro` z propsami `{ variant?: 'navy' | 'white', class?: string, title?: string }`. Zawsze renderuje dwa osobne elementy — `<svg class="logo__wave">` i `<svg class="logo__word">` — wewnątrz `<div class="logo">`. Rozdzielenie na dwa elementy jest wymagane przez intro w zadaniu 10, które animuje je niezależnie.
 - Produkuje: zdjęcia jako importy z `src/assets/`, dostępne dla `astro:assets`.
 
 - [ ] **Krok 1: Przenieś zdjęcia do `src/assets/` z czytelnymi nazwami**
@@ -398,19 +398,19 @@ Wklej ścieżki `<path d="…">` z `/tmp/wave.svg` i `/tmp/word.svg` w miejsca o
 ---
 interface Props {
   variant?: 'navy' | 'white';
-  split?: boolean;
   class?: string;
   title?: string;
 }
-const { variant = 'navy', split = false, class: cls = '', title } = Astro.props;
+const { variant = 'navy', class: cls = '', title } = Astro.props;
 const color = variant === 'white' ? 'var(--white)' : 'var(--navy)';
 ---
 <div class:list={['logo', cls]} style={`color:${color}`}>
   <svg class="logo__wave" viewBox="0 0 708 272" fill="currentColor" role={title ? 'img' : 'presentation'} aria-label={title}>
     <!-- WKLEJ ścieżki z /tmp/wave.svg -->
   </svg>
-  {split && <svg class="logo__word" viewBox="0 0 708 194" fill="currentColor" aria-hidden="true"><!-- WKLEJ ścieżki z /tmp/word.svg --></svg>}
-  {!split && <svg class="logo__word" viewBox="0 0 708 194" fill="currentColor" aria-hidden="true"><!-- WKLEJ ścieżki z /tmp/word.svg --></svg>}
+  <svg class="logo__word" viewBox="0 0 708 194" fill="currentColor" aria-hidden="true">
+    <!-- WKLEJ ścieżki z /tmp/word.svg -->
+  </svg>
 </div>
 
 <style>
@@ -2119,7 +2119,7 @@ git commit -m "feat: slajd kontaktu z mapą ładowaną na żądanie i stopką"
 - Modyfikuj: `tests/build-output.test.js`
 
 **Interfejsy:**
-- Konsumuje: `Logo.astro` z `split={true}` (zadanie 2).
+- Konsumuje: `Logo.astro` (zadanie 2) — animuje jego `.logo__wave` i `.logo__word` niezależnie.
 - Produkuje: `Intro.astro` z propsem `{ label: string }` — nakładka `<div class="intro" hidden>` uruchamiana skryptem.
 
 - [ ] **Krok 1: Napisz test (najpierw test)**
@@ -2154,7 +2154,7 @@ const { label } = Astro.props;
 ---
 <div class="intro" hidden aria-hidden="true">
   <div class="intro__mark">
-    <Logo variant="navy" split={true} />
+    <Logo variant="navy" />
   </div>
 </div>
 
@@ -2601,6 +2601,6 @@ Zadania 1–5 są ściśle sekwencyjne — każde buduje na strukturze poprzedni
 
 Zadania 6, 7, 8 i 9 (slajdy) zależą wyłącznie od zadania 5 i są od siebie niezależne. Można je wykonać równolegle, pod warunkiem że każde dotyka wyłącznie własnych plików komponentów i dopisuje własne testy. Trzy pliki stron modyfikują wszystkie cztery — przy pracy równoległej scalaj je ostrożnie.
 
-Zadanie 10 zależy od zadania 2 (logo z `split`) i 5 (stała warstwa).
+Zadanie 10 zależy od zadania 2 (logo z rozdzielonymi elementami fali i napisu) i 5 (stała warstwa).
 Zadanie 11 zależy od wszystkich poprzednich.
 Zadanie 12 zamyka projekt i zależy od 11.
