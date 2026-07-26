@@ -31,8 +31,8 @@ export interface SiteContent {
   area: { h2: string; lead: string; distancesLabel: string; distances: Distance[]; attractions: Attraction[] };
   contact: {
     h2: string; lead: string;
-    phoneLabel: string; addressLabel: string;
-    mapCta: string; mapNotice: string; routeCta: string; fbLabel: string;
+    phoneLabel: string; emailLabel: string; addressLabel: string;
+    mapCta: string; routeCta: string; fbLabel: string;
   };
   footer: { rights: string };
   alts: Record<string, string>;

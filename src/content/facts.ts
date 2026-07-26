@@ -7,6 +7,8 @@ export const FACTS = {
   country: 'PL',
   phoneHref: 'tel:+48576040656',
   phoneDisplay: '+48 576 040 656',
+  emailHref: 'mailto:aura.niechorze@gmail.com',
+  emailDisplay: 'aura.niechorze@gmail.com',
   guests: 4,
   checkinFrom: '16:00',
   checkinTo: '21:00',
@@ -17,7 +19,7 @@ export const FACTS = {
   // === DANE NIEPOTWIERDZONE — nie publikować dopóki są null ===
   areaSqm: null as number | null,
   beachDistanceM: null as number | null,
-  facebookUrl: null as string | null,
+  facebookUrl: 'https://www.facebook.com/profile.php?id=61592126218435' as string | null,
   lighthouseDistance: null as string | null,
   narrowGaugeDistance: null as string | null,
   oceanariumDistance: null as string | null,

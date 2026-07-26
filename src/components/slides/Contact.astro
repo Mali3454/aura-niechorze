@@ -30,13 +30,21 @@ const year = new Date().getFullYear();
       </address>
       <p class="contact__actions">
         <a href={routeUrl} rel="noopener">{content.contact.routeCta}</a>
+        <a href={FACTS.emailHref}>
+          <span class="visually-hidden">{content.contact.emailLabel}: </span>
+          {FACTS.emailDisplay}
+        </a>
         {hasFact(FACTS.facebookUrl) && <a href={FACTS.facebookUrl} rel="noopener">{content.contact.fbLabel}</a>}
       </p>
     </div>
 
-    <div class="contact__map" data-map data-src={mapEmbed}>
-      <button type="button" data-map-load>{content.contact.mapCta}</button>
-      <p class="contact__map-notice">{content.contact.mapNotice}</p>
+    <div class="contact__map">
+      <iframe
+        src={mapEmbed}
+        title={content.contact.mapCta}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
     </div>
   </div>
 
@@ -45,20 +53,6 @@ const year = new Date().getFullYear();
     <p>&copy; {year} {FACTS.name}. {content.footer.rights}</p>
   </footer>
 </Slide>
-
-<script>
-  for (const box of document.querySelectorAll('[data-map]')) {
-    box.querySelector('[data-map-load]')?.addEventListener('click', () => {
-      const frame = document.createElement('iframe');
-      frame.src = box.dataset.src;
-      frame.title = box.querySelector('[data-map-load]').textContent.trim();
-      frame.loading = 'lazy';
-      frame.referrerPolicy = 'no-referrer-when-downgrade';
-      frame.style.cssText = 'width:100%;height:100%;border:0;display:block';
-      box.replaceChildren(frame);
-    });
-  }
-</script>
 
 <style>
   .contact__lead { margin-top: var(--space-2); font-size: var(--step-1); }
@@ -72,15 +66,8 @@ const year = new Date().getFullYear();
   address { font-style: normal; margin-top: .5rem; line-height: 1.7; }
   .contact__actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
   .contact__actions a { text-underline-offset: .25em; }
-  .contact__map {
-    aspect-ratio: 16 / 10; background: rgba(255,255,255,.07);
-    display: grid; place-content: center; gap: .75rem; text-align: center; padding: var(--space-2);
-  }
-  .contact__map button {
-    background: var(--white); color: var(--navy); border: 0; border-radius: var(--radius-pill);
-    padding: .8rem 1.7rem; font: inherit; font-weight: 600; cursor: pointer;
-  }
-  .contact__map-notice { font-size: .78rem; opacity: .7; max-width: 30ch; margin-inline: auto; }
+  .contact__map { aspect-ratio: 16 / 10; background: rgba(255,255,255,.07); }
+  .contact__map iframe { width: 100%; height: 100%; border: 0; display: block; }
   footer {
     margin-top: var(--space-5); padding-top: var(--space-2);
     border-top: 1px solid rgba(255,255,255,.18);

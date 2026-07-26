@@ -19,11 +19,21 @@ const { ids, names, label } = Astro.props;
   .dots { position: fixed; right: clamp(0.75rem, 2vw, 1.75rem); top: 50%; transform: translateY(-50%); z-index: 20; }
   .dots ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
   .dots a { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; }
+  /* Kropka nosi WŁASNY, stały dwutonowy kontrast (granatowy rdzeń + biały
+     pierścień) zamiast dziedziczyć `color` z <body>. Poprzednio kropki
+     dziedziczyły granat z body niezależnie od tego, jaki slajd akurat jest
+     pod spodem — na jasnych slajdach (obiekt, okolica) granat na jasnym tle
+     był widoczny, ale na granatowych/zdjęciowych slajdach granat na granacie
+     ginął (ten sam błąd C1, co kiedyś dotknął logo — patrz komentarz w
+     Logo.astro). Rdzeń i pierścień razem gwarantują, że przynajmniej jeden
+     z dwóch tonów odbije się kontrastem od dowolnego tła slajdu, bez potrzeby
+     śledzenia scrolla i bez JS. */
   .dots__mark {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: currentColor; opacity: 0.35; transition: opacity .25s, transform .25s;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--navy); box-shadow: 0 0 0 2px var(--white);
+    opacity: 0.55; transition: opacity .25s, transform .25s;
   }
-  .dots a[aria-current="true"] .dots__mark { opacity: 1; transform: scale(1.5); }
+  .dots a[aria-current="true"] .dots__mark { opacity: 1; transform: scale(1.4); }
   @media (prefers-reduced-motion: reduce) { .dots__mark { transition: none; } }
   @media (max-width: 40rem) { .dots { display: none; } }
 </style>

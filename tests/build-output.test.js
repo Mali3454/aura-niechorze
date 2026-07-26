@@ -253,17 +253,20 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(nullPaths, `null znaleziony w JSON-LD pod: ${nullPaths.join(', ')}`).toEqual([]);
   });
 
-  it('slajd kontaktu ma telefon, adres i trasę, a mapa nie ładuje się od razu', () => {
+  it('slajd kontaktu ma telefon, e-mail, adres, trasę i od razu osadzoną mapę', () => {
     const d = doc(path);
-    const html = readFileSync(path, 'utf8');
     expect(d.querySelector('#kontakt a[href^="tel:"]')).not.toBeNull();
+    expect(d.querySelector('#kontakt a[href^="mailto:"]')).not.toBeNull();
     expect(d.querySelector('#kontakt address')).not.toBeNull();
     expect(d.querySelector('#kontakt a[href*="google.com/maps/dir"]')).not.toBeNull();
-    expect(html).not.toContain('<iframe');
+    const iframe = d.querySelector('#kontakt iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe.getAttribute('loading')).toBe('lazy');
+    expect(iframe.getAttribute('src')).toContain('maps.google.com');
   });
 
-  it('nie linkuje Facebooka, dopóki adres jest niepotwierdzony', () => {
-    expect(readFileSync(path, 'utf8')).not.toContain('facebook.com');
+  it('linkuje Facebooka teraz, gdy adres profilu jest potwierdzony', () => {
+    expect(readFileSync(path, 'utf8')).toContain('facebook.com/profile.php?id=61592126218435');
   });
 
   it('ma stopkę z nazwą obiektu', () => {
