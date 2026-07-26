@@ -11,7 +11,7 @@ const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
 ---
 <header class="chrome">
   <a class="chrome__logo" href={PATHS[content.lang]} aria-label={FACTS.name}>
-    <Logo variant="white" />
+    <Logo />
   </a>
 
   <nav class="chrome__lang" aria-label={content.chrome.langLabel}>
@@ -78,11 +78,10 @@ const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
     }
   }
 
+  /* Jedno miejsce, w którym stała warstwa zmienia kolor na jasnych slajdach.
+     Logo dziedziczy `color` stąd (patrz Logo.astro) — nie ma osobnej reguły
+     na .logo, więc nie ma czego pominąć przy zmianie. */
   .chrome[data-on-light] { color: var(--navy); }
-  /* Logo.astro ustawia kolor inline (style="color:...") na własnym elemencie
-     wg propsa variant="white" — nie dziedziczy koloru z .chrome, więc trzeba
-     go nadpisać osobno, inaczej znak zniknie na jasnym slajdzie. */
-  .chrome[data-on-light] .chrome__logo .logo { color: var(--navy) !important; }
   .chrome[data-on-light] .chrome__call { border-color: rgba(4,71,122,.5); }
   .chrome[data-on-light] .chrome__call:hover { background: var(--navy); color: var(--white); }
   .chrome[data-on-light] .chrome__lang-current { background: rgba(4,71,122,.12); }
