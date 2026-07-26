@@ -1,10 +1,13 @@
 ---
 import { FACTS, hasFact } from '../content/facts';
 import type { SiteContent } from '../content/types';
-import ogImage from '../assets/budynek-zmierzch.webp';
 
-interface Props { content: SiteContent; canonical: string }
-const { content, canonical } = Astro.props;
+// Adres bezwzględny zdjęcia dostajemy z Base.astro — tam jest JEDYNE miejsce,
+// które zna domenę (Astro.site) i wersję og:image. Wcześniej ten plik sklejał
+// domenę z ręki ('https://aura-niechorze.pl' + ogImage.src), czyli trzymał
+// trzecią kopię adresu strony.
+interface Props { content: SiteContent; canonical: string; image: string }
+const { content, canonical, image } = Astro.props;
 
 const amenities = content.apartment.amenities.map((name) => ({
   '@type': 'LocationFeatureSpecification',
@@ -19,7 +22,7 @@ const data = {
   description: content.meta.description,
   url: canonical,
   telephone: FACTS.phoneHref.replace('tel:', ''),
-  image: 'https://aura-niechorze.pl' + ogImage.src,
+  image,
   address: {
     '@type': 'PostalAddress',
     streetAddress: FACTS.street,

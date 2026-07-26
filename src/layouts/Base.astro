@@ -1,19 +1,50 @@
 ---
+import { getImage } from 'astro:assets';
 import '@fontsource-variable/outfit/index.css';
 import '../styles/tokens.css';
 import '../styles/global.css';
 import type { SiteContent, Lang } from '../content/types';
 import ogImage from '../assets/budynek-zmierzch.webp';
-import outfitWoff2 from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
+import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
+import outfitLatinExt from '@fontsource-variable/outfit/files/outfit-latin-ext-wght-normal.woff2?url';
 import StructuredData from '../components/StructuredData.astro';
 
 interface Props { content: SiteContent }
 const { content } = Astro.props;
 
-const SITE = 'https://aura-niechorze.pl';
 const PATHS: Record<Lang, string> = { pl: '/', de: '/de/', en: '/en/' };
 const HREF_LANGS: Record<Lang, string> = { pl: 'pl-PL', de: 'de-DE', en: 'en-GB' };
-const canonical = SITE + PATHS[content.lang];
+
+/*
+  JEDNO źródło domeny: `site` z astro.config.mjs. Wcześniej ten sam adres stał
+  w trzech niezależnych kopiach (config, ten plik, sklejany string w
+  StructuredData.astro), a karmi canonical, wszystkie hreflangi, og:url,
+  og:image i JSON-LD — czyli rozjazd kopii cichutko rozjeżdżał SEO.
+*/
+const site = Astro.site!;
+const abs = (path: string) => new URL(path, site).href;
+const canonical = abs(PATHS[content.lang]);
+
+/*
+  og:image musi być JPEG-iem. Scrapery Facebooka i WhatsAppa nie renderują
+  WebP w og:image, a dystrybucja tego obiektu to link wklejony w komunikator —
+  podgląd bez zdjęcia to strata dokładnie tam, gdzie ruch powstaje.
+  1200x630 to kanoniczny format karty (1.91:1).
+*/
+const og = await getImage({ src: ogImage, format: 'jpeg', width: 1200, height: 630, fit: 'cover' });
+
+/*
+  Preload podzbioru fontu. Podzbiór „latin” nie zawiera ż/ł/ą — te znaki żyją w
+  „latin-ext”. Polski <h1> („…plaży…”) to tekst LCP tej strony, więc bez
+  preloadu latin-ext LCP czekało na podzbiór wykryty dopiero po przeliczeniu
+  stylów. Wybrałem preload PER JĘZYK zamiast preloadowania obu wszędzie:
+  latin-ext waży 14,8 kB i na stronie DE/EN nie ma go w widocznym na starcie
+  tekście, więc byłby to czysty koszt na łączu komórkowym nad morzem.
+  Warunek liczymy z realnej treści nagłówka, a nie z kodu języka — dzięki temu
+  zmiana copy nie może po cichu unieważnić decyzji.
+*/
+const LATIN_EXT_RANGE = /[Ā-ʺʽ-˅Ḁ-ẟⱠ-Ɀ]/;
+const needsLatinExt = LATIN_EXT_RANGE.test(content.hero.h1);
 ---
 <!doctype html>
 <html lang={content.htmlLang}>
@@ -36,12 +67,13 @@ const canonical = SITE + PATHS[content.lang];
     <meta name="description" content={content.meta.description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
-    <link rel="preload" as="font" type="font/woff2" href={outfitWoff2} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={outfitLatin} crossorigin />
+    {needsLatinExt && <link rel="preload" as="font" type="font/woff2" href={outfitLatinExt} crossorigin />}
 
     {(['pl', 'de', 'en'] as Lang[]).map((l) => (
-      <link rel="alternate" hreflang={HREF_LANGS[l]} href={SITE + PATHS[l]} />
+      <link rel="alternate" hreflang={HREF_LANGS[l]} href={abs(PATHS[l])} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={SITE + PATHS.pl} />
+    <link rel="alternate" hreflang="x-default" href={abs(PATHS.pl)} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Aura Niechorze" />
@@ -49,10 +81,13 @@ const canonical = SITE + PATHS[content.lang];
     <meta property="og:description" content={content.meta.description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={content.htmlLang.replace('-', '_')} />
-    <meta property="og:image" content={SITE + ogImage.src} />
+    <meta property="og:image" content={abs(og.src)} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={content.meta.ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <StructuredData content={content} canonical={canonical} />
+    <StructuredData content={content} canonical={canonical} image={abs(og.src)} />
     <slot name="head" />
   </head>
   <body>
