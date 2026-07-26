@@ -40,6 +40,7 @@ export const pl: SiteContent = {
       { value: `${FACTS.guests}`, label: 'osoby' },
       { value: '950 m', label: 'do stacji kolejowej' },
       { value: '200 m', label: 'do restauracji' },
+      ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'powierzchni' }] : []),
     ],
   },
   apartment: {
@@ -79,7 +80,13 @@ export const pl: SiteContent = {
     lead: 'Morze na wyciągnięcie ręki, a dookoła cały pas nadmorski.',
     distancesLabel: 'Odległości',
     distances: [
-      { name: 'Plaża w Niechorzu', value: 'tuż obok' },
+      // Odległość do plaży jest niepotwierdzona (źródła podają raz 50 m,
+      // raz 300 m), a każdy inny wiersz tej listy to zmierzona liczba —
+      // więc dopóki liczby nie ma, wiersza po prostu nie ma. Wcześniej stało
+      // tu „tuż obok”, co w liście pomiarów czytało się jak pomiar.
+      ...(hasFact(FACTS.beachDistanceM)
+        ? [{ name: 'Plaża w Niechorzu', value: `${FACTS.beachDistanceM} m` }]
+        : []),
       { name: 'Restauracje', value: '200–300 m' },
       { name: 'Stacja kolejowa Niechorze', value: '950 m' },
       { name: 'Plaża Pogorzelica', value: '900 m' },
@@ -88,9 +95,9 @@ export const pl: SiteContent = {
       { name: 'Lotnisko Szczecin-Goleniów', value: '80 km' },
     ],
     attractions: [
-      { name: 'Latarnia morska w Niechorzu', text: 'Ceglana wieża z 1866 roku i taras widokowy nad klifem.' },
-      { name: 'Kolejka wąskotorowa', text: 'Zabytkowy pociąg kursujący wzdłuż wybrzeża między nadmorskimi miejscowościami.' },
-      { name: 'Oceanarium', text: 'Ekspozycja morska w Niechorzu — dobry pomysł na deszczowe popołudnie.' },
+      { name: 'Latarnia morska w Niechorzu', text: 'Ceglana wieża z 1866 roku i taras widokowy nad klifem.', ...(hasFact(FACTS.lighthouseDistance) ? { distance: FACTS.lighthouseDistance } : {}) },
+      { name: 'Kolejka wąskotorowa', text: 'Zabytkowy pociąg kursujący wzdłuż wybrzeża między nadmorskimi miejscowościami.', ...(hasFact(FACTS.narrowGaugeDistance) ? { distance: FACTS.narrowGaugeDistance } : {}) },
+      { name: 'Oceanarium', text: 'Ekspozycja morska w Niechorzu — dobry pomysł na deszczowe popołudnie.', ...(hasFact(FACTS.oceanariumDistance) ? { distance: FACTS.oceanariumDistance } : {}) },
     ],
   },
   contact: {

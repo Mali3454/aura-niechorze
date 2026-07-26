@@ -39,6 +39,7 @@ export const en: SiteContent = {
       { value: `${FACTS.guests}`, label: 'guests' },
       { value: '950 m', label: 'to the railway station' },
       { value: '200 m', label: 'to restaurants' },
+      ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'of floor space' }] : []),
     ],
   },
   apartment: {
@@ -78,7 +79,10 @@ export const en: SiteContent = {
     lead: 'The sea starts behind the dunes, with the whole Baltic coast around you.',
     distancesLabel: 'Distances',
     distances: [
-      { name: 'Niechorze beach', value: 'next door' },
+      // See pl.ts: unconfirmed distance, so no row at all.
+      ...(hasFact(FACTS.beachDistanceM)
+        ? [{ name: 'Niechorze beach', value: `${FACTS.beachDistanceM} m` }]
+        : []),
       { name: 'Restaurants', value: '200–300 m' },
       { name: 'Niechorze railway station', value: '950 m' },
       { name: 'Pogorzelica beach', value: '900 m' },
@@ -87,9 +91,9 @@ export const en: SiteContent = {
       { name: 'Szczecin-Goleniów Airport', value: '80 km' },
     ],
     attractions: [
-      { name: 'Niechorze lighthouse', text: 'A brick tower from 1866 with a viewing terrace high above the cliff.' },
-      { name: 'Narrow-gauge railway', text: 'A heritage train that runs along the coast between the seaside villages.' },
-      { name: 'Oceanarium', text: 'A marine exhibition in Niechorze — a good plan for a rainy afternoon.' },
+      { name: 'Niechorze lighthouse', text: 'A brick tower from 1866 with a viewing terrace high above the cliff.', ...(hasFact(FACTS.lighthouseDistance) ? { distance: FACTS.lighthouseDistance } : {}) },
+      { name: 'Narrow-gauge railway', text: 'A heritage train that runs along the coast between the seaside villages.', ...(hasFact(FACTS.narrowGaugeDistance) ? { distance: FACTS.narrowGaugeDistance } : {}) },
+      { name: 'Oceanarium', text: 'A marine exhibition in Niechorze — a good plan for a rainy afternoon.', ...(hasFact(FACTS.oceanariumDistance) ? { distance: FACTS.oceanariumDistance } : {}) },
     ],
   },
   contact: {

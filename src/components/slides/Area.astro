@@ -11,7 +11,7 @@ const { content } = Astro.props;
 
   <div class="area__grid">
     <div>
-      <h3 class="area__sub">{content.area.distancesLabel}</h3>
+      <h3 class="eyebrow">{content.area.distancesLabel}</h3>
       <dl class="area__distances">
         {content.area.distances.map((d) => (
           <div class="distance">
@@ -24,7 +24,8 @@ const { content } = Astro.props;
     <ul class="area__attractions">
       {content.area.attractions.map((a) => (
         <li class="attraction">
-          <h3>{a.name}</h3>
+          <h3 class="eyebrow attraction__name">{a.name}</h3>
+          {a.distance && <p class="attraction__distance">{a.distance}</p>}
           <p>{a.text}</p>
         </li>
       ))}
@@ -33,11 +34,9 @@ const { content } = Astro.props;
 </Slide>
 
 <style>
-  h2 { font-size: var(--step-4); }
   .area__lead { margin-top: var(--space-2); font-size: var(--step-1); max-width: var(--measure); }
   .area__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); margin-top: var(--space-4); }
   @media (min-width: 60rem) { .area__grid { grid-template-columns: 1fr 1fr; } }
-  .area__sub, .attraction h3 { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .8; font-weight: 600; }
   .area__distances { margin: var(--space-2) 0 0; }
   .distance {
     display: flex; justify-content: space-between; gap: var(--space-2);
@@ -46,6 +45,10 @@ const { content } = Astro.props;
   .distance dt { margin: 0; }
   .distance dd { margin: 0; font-weight: 600; white-space: nowrap; }
   .area__attractions { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); align-content: start; }
-  .attraction h3 { margin-bottom: .3rem; opacity: 1; color: var(--navy); }
+  /* Nazwa atrakcji nosi .eyebrow (rozmiar, kapitaliki, tracking), ale jest
+     pełnym nagłówkiem sekcji, nie podpisem — stąd pełne krycie. */
+  .attraction__name { margin-bottom: .3rem; opacity: 1; color: var(--navy); }
+  /* Renderowane tylko, gdy FACTS.*Distance jest potwierdzone (hasFact). */
+  .attraction__distance { font-weight: 600; margin-bottom: .15rem; }
   .attraction p { max-width: 44ch; }
 </style>

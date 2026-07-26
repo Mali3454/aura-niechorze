@@ -2,7 +2,10 @@ export type Lang = 'pl' | 'de' | 'en';
 
 export interface Stat { value: string; label: string; }
 export interface Distance { name: string; value: string; }
-export interface Attraction { name: string; text: string; }
+// `distance` jest opcjonalne, bo pochodzi z FACTS.*Distance — dopóki
+// właściciel nie potwierdzi wartości, klucza po prostu nie ma i Area.astro
+// nie renderuje wiersza (wzorzec hasFact).
+export interface Attraction { name: string; text: string; distance?: string; }
 
 export interface SiteContent {
   lang: Lang;

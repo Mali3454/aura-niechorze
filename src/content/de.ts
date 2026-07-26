@@ -39,6 +39,7 @@ export const de: SiteContent = {
       { value: `${FACTS.guests}`, label: 'Personen' },
       { value: '950 m', label: 'zum Bahnhof' },
       { value: '200 m', label: 'zu Restaurants' },
+      ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'Wohnfläche' }] : []),
     ],
   },
   apartment: {
@@ -78,7 +79,10 @@ export const de: SiteContent = {
     lead: 'Das Meer beginnt hinter den Dünen, ringsum liegt die ganze Ostseeküste.',
     distancesLabel: 'Entfernungen',
     distances: [
-      { name: 'Strand in Niechorze', value: 'gleich nebenan' },
+      // Siehe pl.ts: unbestätigte Entfernung, deshalb keine Zeile.
+      ...(hasFact(FACTS.beachDistanceM)
+        ? [{ name: 'Strand in Niechorze', value: `${FACTS.beachDistanceM} m` }]
+        : []),
       { name: 'Restaurants', value: '200–300 m' },
       { name: 'Bahnhof Niechorze', value: '950 m' },
       { name: 'Strand Pogorzelica', value: '900 m' },
@@ -87,9 +91,9 @@ export const de: SiteContent = {
       { name: 'Flughafen Szczecin-Goleniów', value: '80 km' },
     ],
     attractions: [
-      { name: 'Leuchtturm von Niechorze', text: 'Backsteinturm von 1866 mit Aussichtsplattform hoch über der Steilküste.' },
-      { name: 'Schmalspurbahn', text: 'Historischer Zug, der entlang der Küste zwischen den Ostseeorten verkehrt.' },
-      { name: 'Oceanarium', text: 'Meeresausstellung in Niechorze — eine gute Idee für einen verregneten Nachmittag.' },
+      { name: 'Leuchtturm von Niechorze', text: 'Backsteinturm von 1866 mit Aussichtsplattform hoch über der Steilküste.', ...(hasFact(FACTS.lighthouseDistance) ? { distance: FACTS.lighthouseDistance } : {}) },
+      { name: 'Schmalspurbahn', text: 'Historischer Zug, der entlang der Küste zwischen den Ostseeorten verkehrt.', ...(hasFact(FACTS.narrowGaugeDistance) ? { distance: FACTS.narrowGaugeDistance } : {}) },
+      { name: 'Oceanarium', text: 'Meeresausstellung in Niechorze — eine gute Idee für einen verregneten Nachmittag.', ...(hasFact(FACTS.oceanariumDistance) ? { distance: FACTS.oceanariumDistance } : {}) },
     ],
   },
   contact: {
