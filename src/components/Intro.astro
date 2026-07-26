@@ -14,12 +14,16 @@ import Logo from './Logo.astro';
     const seen = sessionStorage.getItem('aura-intro') === '1';
 
     if (!reduced && !seen) {
-      // Uwaga: uzbrajamy ścieżkę wyjścia (nasłuchy + timeout), zanim wykonamy
-      // cokolwiek, co może rzucić wyjątek. Blokada przewijania (intro-active)
-      // nie może nigdy przeżyć swojej drogi ucieczki — jeśli którakolwiek z
-      // poniższych operacji (np. sessionStorage.setItem, które w niektórych
-      // politykach przechowywania może rzucić mimo że getItem się powiódł)
-      // rzuci wyjątek, finish() jest już zarejestrowany i odblokuje stronę.
+      const mark = intro.querySelector('.intro__mark');
+      // Couples to Chrome.astro's fixed header logo: the intro logo must end
+      // its flight exactly on top of this element, at whatever size and
+      // position it actually has at this viewport — measured, not hardcoded.
+      const headerLogo = document.querySelector('.chrome__logo');
+      const timers = [];
+
+      // Uzbrajamy ścieżkę wyjścia (nasłuchy + zapasowy timeout), zanim
+      // wykonamy cokolwiek, co może rzucić wyjątek. Blokada przewijania
+      // (intro-active) nie może nigdy przeżyć swojej drogi ucieczki.
       const finish = () => {
         if (intro.hidden) return;
         intro.hidden = true;
@@ -27,12 +31,39 @@ import Logo from './Logo.astro';
         for (const ev of ['pointerdown', 'keydown', 'wheel', 'touchstart']) {
           window.removeEventListener(ev, finish);
         }
+        for (const t of timers) clearTimeout(t);
       };
 
       for (const ev of ['pointerdown', 'keydown', 'wheel', 'touchstart']) {
         window.addEventListener(ev, finish, { passive: true });
       }
-      setTimeout(finish, 3200);
+      // Zapasowa siatka bezpieczeństwa: gdyby z jakiegoś powodu lot nigdy się
+      // nie uruchomił (np. brak elementu docelowego), nakładka i tak zniknie.
+      timers.push(setTimeout(finish, 4000));
+
+      // Lot do rogu: mierzymy pozycję i rozmiar logo w nagłówku DOKŁADNIE w
+      // chwili startu animacji (nie przy wczytaniu strony), więc wynik jest
+      // poprawny przy dowolnej szerokości ekranu odwiedzającego. Animujemy
+      // wyłącznie transform i opacity — żadnej właściwości wymuszającej
+      // przeliczenie układu w każdej klatce.
+      const fly = () => {
+        if (intro.hidden) return;
+        try {
+          if (mark && headerLogo) {
+            const from = mark.getBoundingClientRect();
+            const to = headerLogo.getBoundingClientRect();
+            const scale = to.width / from.width;
+            mark.style.setProperty('--fly-x', `${to.left - from.left}px`);
+            mark.style.setProperty('--fly-y', `${to.top - from.top}px`);
+            mark.style.setProperty('--fly-scale', String(scale));
+            intro.classList.add('is-flying');
+          }
+        } catch {
+          // Pomiar się nie powiódł — mimo to kończymy przez zapasowy timeout
+          // poniżej, żeby nie zablokować strony bez animacji.
+        }
+        timers.push(setTimeout(finish, 950));
+      };
 
       try {
         document.documentElement.classList.add('intro-active');
@@ -41,6 +72,7 @@ import Logo from './Logo.astro';
         void intro.offsetWidth;
         intro.classList.add('is-playing');
         sessionStorage.setItem('aura-intro', '1');
+        timers.push(setTimeout(fly, 2400));
       } catch {
         // Coś w sekwencji rzuciło (np. zapis do sessionStorage) — nie
         // zostawiamy zablokowanego przewijania bez drogi wyjścia.
@@ -60,7 +92,19 @@ import Logo from './Logo.astro';
     background: var(--white);
     display: grid; place-items: center;
   }
-  .intro__mark { width: min(46vw, 30rem); }
+  .intro.is-flying {
+    transition: opacity 0.9s cubic-bezier(.7, 0, .2, 1);
+    opacity: 0;
+  }
+
+  .intro__mark {
+    width: min(46vw, 30rem);
+    transform-origin: top left;
+    transition: transform 0.9s cubic-bezier(.7, 0, .2, 1);
+  }
+  .intro.is-flying .intro__mark {
+    transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-scale, 1));
+  }
 
   .intro :global(.logo__wave) { clip-path: inset(0 100% 0 0); }
   .intro :global(.logo__word) { opacity: 0; transform: translateY(10px); }
@@ -71,11 +115,9 @@ import Logo from './Logo.astro';
   .intro.is-playing :global(.logo__word) {
     animation: intro-rise .55s ease .95s forwards;
   }
-  .intro.is-playing { animation: intro-out .8s cubic-bezier(.7, 0, .2, 1) 2.4s forwards; }
 
   @keyframes intro-draw { to { clip-path: inset(0 0% 0 0); } }
   @keyframes intro-rise { to { opacity: 1; transform: none; } }
-  @keyframes intro-out  { to { opacity: 0; visibility: hidden; } }
 
   @media (prefers-reduced-motion: reduce) {
     .intro { display: none; }

@@ -281,4 +281,29 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     // treść pierwszego slajdu istnieje w HTML niezależnie od intro
     expect(d.querySelector('#start-title').textContent.length).toBeGreaterThan(10);
   });
+
+  it('intro ma logo do animacji lotu oraz istnieje dokładnie jedno logo w nagłówku jako cel', () => {
+    const d = doc(path);
+    const mark = d.querySelector('.intro .intro__mark');
+    expect(mark).not.toBeNull();
+    // te same dwa elementy SVG co w Logo.astro — skrypt animuje je niezależnie
+    expect(mark.querySelector('.logo__wave')).not.toBeNull();
+    expect(mark.querySelector('.logo__word')).not.toBeNull();
+    // cel lotu musi istnieć i być jedyny — inaczej querySelector('.chrome__logo')
+    // w skrypcie trafi w przypadkowy element albo w nic
+    expect(d.querySelectorAll('.chrome__logo')).toHaveLength(1);
+  });
+
+  it('intro mierzy pozycję celu w czasie działania zamiast zaszywać współrzędne w kodzie', () => {
+    // Sedno wymagania właściciela: logo musi trafić DOKŁADNIE w logo nagłówka
+    // przy każdej szerokości ekranu. To wymaga pomiaru w locie
+    // (getBoundingClientRect), a nie stałej transformacji w CSS/JS. Statyczny
+    // test HTML nie uruchomi animacji, ale może potwierdzić, że kod w ogóle
+    // mierzy, zamiast zawierać zahardkodowane wartości px/deg przesunięcia.
+    const html = readFileSync(path, 'utf8');
+    expect(html).toContain('getBoundingClientRect');
+    expect(html).toContain('--fly-x');
+    expect(html).toContain('--fly-y');
+    expect(html).toContain('--fly-scale');
+  });
 });
