@@ -58,10 +58,17 @@ const { content } = Astro.props;
     content: ''; position: absolute; inset: 0; z-index: -1;
     background: linear-gradient(180deg, rgba(2,64,118,.62) 0%, rgba(2,64,118,.72) 50%, rgba(2,64,118,.85) 100%);
   }
-  .hero__copy { max-width: 22ch; }
+  /* Było `max-width: 22ch`. Jednostka `ch` liczy się od rozmiaru czcionki
+     TEGO elementu (≈1 rem), a nie od nagłówka, więc kolumna miała ok. 11 rem —
+     nagłówek w rozmiarze --step-5 (do 4,4 rem) łamał się w niej na wąski,
+     wysoki słupek. Szerokość dobrana pomiarem długości wierszy h1 przy 390,
+     768 i 1440 px (patrz raport), nie jedną liczbą „na oko":
+     `min(100%, …)` daje pełną szerokość kolumny na telefonie, a na dużych
+     ekranach zatrzymuje wiersz nagłówka na czytelnej długości. */
+  .hero__copy { max-width: min(100%, 38rem); }
   h1 { font-size: var(--step-5); text-shadow: 0 1px 3px rgba(2,64,118,.6); }
   .hero__sub {
-    margin-top: var(--space-2); font-size: var(--step-1); max-width: var(--measure); opacity: .92;
+    margin-top: var(--space-2); font-size: var(--step-1); max-width: min(100%, 27rem); opacity: .92;
     text-shadow: 0 1px 3px rgba(2,64,118,.6);
   }
   .hero__cta {
