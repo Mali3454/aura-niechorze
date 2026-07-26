@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Intro from '../components/Intro.astro';
 import Chrome from '../components/Chrome.astro';
 import SlideNav from '../components/SlideNav.astro';
 import Hero from '../components/slides/Hero.astro';
@@ -12,6 +13,7 @@ import { pl as c } from '../content/pl';
 const IDS = ['start', 'obiekt', 'apartament', 'okolica', 'kontakt'];
 ---
 <Base content={c}>
+  <Intro label={c.chrome.skip} />
   <Chrome content={c} />
   <SlideNav ids={IDS} names={c.chrome.slideNames} label={c.chrome.navLabel} />
   <main id="tresc" class="slides">

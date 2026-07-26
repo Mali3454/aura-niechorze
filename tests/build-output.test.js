@@ -271,4 +271,14 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(f).not.toBeNull();
     expect(f.textContent).toContain('Aura');
   });
+
+  it('intro startuje ukryte i nie blokuje treści', () => {
+    const d = doc(path);
+    const intro = d.querySelector('.intro');
+    expect(intro).not.toBeNull();
+    expect(intro.hasAttribute('hidden')).toBe(true);
+    expect(intro.getAttribute('aria-hidden')).toBe('true');
+    // treść pierwszego slajdu istnieje w HTML niezależnie od intro
+    expect(d.querySelector('#start-title').textContent.length).toBeGreaterThan(10);
+  });
 });
