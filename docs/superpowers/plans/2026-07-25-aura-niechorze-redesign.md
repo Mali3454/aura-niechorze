@@ -2344,6 +2344,56 @@ test('galeria zamyka się Escape i oddaje focus', async ({ page }) => {
   await expect(thumb).toBeFocused();
 });
 
+test('galeria przewija zdjęcia strzałkami', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+  await page.locator('.gallery__item').first().click();
+  const shown = page.locator('[data-gallery-image]');
+  const first = await shown.getAttribute('alt');
+  await page.keyboard.press('ArrowRight');
+  const second = await shown.getAttribute('alt');
+  expect(second, 'strzałka w prawo nie zmieniła zdjęcia').not.toBe(first);
+  expect(second?.length ?? 0, 'zdjęcie w podglądzie bez opisu alternatywnego').toBeGreaterThan(10);
+  await page.keyboard.press('ArrowLeft');
+  expect(await shown.getAttribute('alt')).toBe(first);
+});
+
+test('focus nie ucieka poza otwarty dialog galerii', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+  await page.locator('.gallery__item').first().click();
+  // dwadzieścia tabulacji musi zostawić focus wewnątrz dialogu —
+  // natywny showModal() ma to gwarantować, ten test tego pilnuje
+  for (let i = 0; i < 20; i++) {
+    await page.keyboard.press('Tab');
+    const inside = await page.evaluate(
+      () => document.activeElement?.closest('dialog') !== null
+    );
+    expect(inside, `focus wyszedł poza dialog po ${i + 1} tabulacjach`).toBe(true);
+  }
+});
+
+test('mapa ładuje się dopiero po kliknięciu i ma tytuł', async ({ page }) => {
+  const googleRequests = [];
+  page.on('request', (r) => {
+    if (/google\.com|gstatic\.com/.test(r.url())) googleRequests.push(r.url());
+  });
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+  await page.locator('.dots a[href="#kontakt"]').click();
+  await expect(page.locator('#kontakt iframe')).toHaveCount(0);
+  expect(googleRequests, 'strona odpytała Google zanim gość kliknął mapę').toEqual([]);
+
+  await page.locator('[data-map-load]').click();
+  const frame = page.locator('#kontakt iframe');
+  await expect(frame).toHaveCount(1);
+  expect((await frame.getAttribute('title'))?.length ?? 0).toBeGreaterThan(3);
+  expect(await frame.getAttribute('src')).toContain('Le%C5%9Bna');
+});
+
 test('intro nie startuje przy ograniczonych animacjach', async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
@@ -2351,6 +2401,36 @@ test('intro nie startuje przy ograniczonych animacjach', async ({ browser }) => 
   await expect(page.locator('.intro')).toBeHidden();
   await expect(page.locator('#start-title')).toBeVisible();
   await ctx.close();
+});
+
+test('logo intra dolatuje dokładnie na miejsce logo nagłówka', async ({ page }) => {
+  // To jest test tej jednej rzeczy, ktora najlatwiej rozjezdza sie miedzy
+  // szerokosciami ekranu: koniec animacji musi pokrywac sie z logo naglowka.
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+    await page.evaluate(() => sessionStorage.removeItem('aura-intro'));
+    await page.reload();
+
+    const boxes = await page.evaluate(async () => {
+      const intro = document.querySelector('.intro .logo');
+      const chrome = document.querySelector('.chrome__logo .logo, .chrome__logo');
+      if (!intro || !chrome) return null;
+      // poczekaj az animacje intra dobiegna konca
+      await Promise.all(
+        intro.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {}))
+      );
+      const a = intro.getBoundingClientRect();
+      const b = chrome.getBoundingClientRect();
+      return { a: { x: a.x, y: a.y, w: a.width }, b: { x: b.x, y: b.y, w: b.width } };
+    });
+
+    expect(boxes, `nie znaleziono logo przy szerokosci ${width}`).not.toBeNull();
+    const tolerance = 4;
+    expect(Math.abs(boxes.a.x - boxes.b.x), `x rozjechane przy ${width}px`).toBeLessThanOrEqual(tolerance);
+    expect(Math.abs(boxes.a.y - boxes.b.y), `y rozjechane przy ${width}px`).toBeLessThanOrEqual(tolerance);
+    expect(Math.abs(boxes.a.w - boxes.b.w), `szerokosc rozjechana przy ${width}px`).toBeLessThanOrEqual(tolerance);
+  }
 });
 
 test('każdy slajd jest osiągalny kotwicą', async ({ page }) => {
@@ -2371,6 +2451,8 @@ npm run test:a11y
 ```
 
 Naruszenia axe napraw u źródła — nie wyciszaj reguł. Najczęstsze przy tym układzie to zbyt niski kontrast białej stałej warstwy na jasnych slajdach (rozwiązanie w zadaniu 12) oraz brak dostępnej nazwy przycisku.
+
+Ten zestaw testów zamyka wszystko, czego nie dało się sprawdzić w poprzednich zadaniach, bo test statycznego HTML nie wykonuje skryptów. Konkretnie: przewijanie slajdów i dowożenie kropkami (zadanie 5), otwieranie galerii, kolejność tabulacji w dialogu, strzałki i powrót focusu na miniaturę (zadanie 8), ładowanie mapy dopiero po kliknięciu wraz z brakiem żądań do Google przed nim (zadanie 9) oraz przebieg intra i pokrycie się końca animacji z logo nagłówka (zadanie 10). Jeśli któryś z tych testów nie przechodzi, to jest realna usterka odłożona z wcześniejszego zadania, a nie usterka testu — napraw komponent.
 
 - [ ] **Krok 6: Dodaj testy dostępności do CI**
 
