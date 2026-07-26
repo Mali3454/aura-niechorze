@@ -274,34 +274,97 @@ for (const id of LIGHT_SLIDES) {
   test(`znak w nagłówku jest widoczny na jasnym slajdzie #${id}`, async ({ page }) => {
     // Logo to wklejony <svg> z fill="currentColor". axe NIE widzi koloru
     // grafiki wektorowej — reguła color-contrast dotyczy tekstu — więc test
-    // powyżej przechodził na zielono, kiedy znak był biały na mgle (~1:1).
-    // Dokładnie tak błąd C1 przeżył cztery rundy przeglądu i 121 asercji.
-    // Dlatego mierzymy PIKSELE: robimy zrzut samego elementu logo i liczymy
-    // kontrast między jego najciemniejszym a najjaśniejszym pikselem. To
-    // sprawdzenie nie zna mechanizmu (inline style, klasa, dziedziczenie) —
-    // reaguje na to, co widzi gość. Próg 3:1 = WCAG 1.4.11 (grafika).
+    // kontrastu obok przechodził na zielono, kiedy znak był biały na mgle
+    // (~1:1). Dokładnie tak błąd C1 przeżył cztery rundy przeglądu i 121
+    // asercji: test napisany na tę klasę błędu nie umiał na nią patrzeć.
+    //
+    // Mierzymy więc PIKSELE, ale tylko te należące do znaku: robimy dwa zrzuty
+    // tego samego wycinka ekranu — ze znakiem i z jego wygaszoną częścią — i
+    // liczymy kontrast każdego zmienionego piksela wobec tego, co było pod
+    // nim. Naiwne „najciemniejszy do najjaśniejszego w prostokącie logo" tu
+    // NIE działa: górny pasek slajdu zdobi granatowa fala (WaveMark), która
+    // sama z siebie daje ~10:1 w tym prostokącie i maskuje niewidzialny znak.
+    //
+    // Mierzymy NAPIS („AURA"), a nie falę znaku — świadomie i z konkretnego
+    // powodu. Górne ~64 px obu jasnych slajdów zdobi granatowa fala
+    // (WaveMark), a w pozycji zatrzaśniętej przez scroll-snap wypada ona
+    // dokładnie na wysokości falki w logo. Falka jest tam granat na granacie,
+    // więc pomiar dawałby raz 0, raz 771 pikseli zależnie od tego, czy
+    // przewijanie zdążyło się ustabilizować — test byłby chwiejny, a jego
+    // wynik i tak mówiłby o dekoracji, nie o znaku. (To nakładanie się
+    // dekoracji na falkę logo jest osobną, wcześniejszą sprawą wizualną —
+    // opisane w raporcie, nie zamiatane pod ten test.)
+    // Napis leży zawsze poniżej pasa, na własnym tle slajdu, i to on ginie
+    // przy błędzie C1: mediana 1,12:1 na „obiekt", a na „okolica" napis nie
+    // zmienia ANI JEDNEGO piksela.
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await page.keyboard.press('Escape');
     await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
     await page.locator(`.dots a[href="#${id}"]`).click();
-    await page.waitForTimeout(600);
     await expect(page.locator('.chrome')).toHaveAttribute('data-on-light', '');
+    // Czekamy, aż slajd DOJEDZIE do pozycji zatrzaśniętej (górna krawędź
+    // sekcji na górze okna), a nie na zgadnięty czas. To nie jest kosmetyka:
+    // dopóki przewijanie trwa, granatowa fala dekoracyjna wędruje po
+    // wysokości nagłówka i zakrywa napis, więc pomiar mierzyłby chwilowy kadr
+    // (obserwowane realnie: raz 0, raz 772 zmienione piksele). Sprawdzenie
+    // „scrollTop nie zmienił się przez dwie klatki" tu nie wystarcza —
+    // spełnia je też moment TUŻ PO kliknięciu, zanim płynne przewijanie
+    // w ogóle ruszy.
+    await page.waitForFunction(
+      (slideId) => Math.abs(document.getElementById(slideId).getBoundingClientRect().top) < 1,
+      id,
+      { timeout: 5000 }
+    );
 
-    const buf = await page.locator('.chrome__logo').screenshot();
-    const { data, info } = await sharp(buf).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-    let min = Infinity;
-    let max = -Infinity;
-    for (let i = 0; i < data.length; i += info.channels) {
-      const l = relLuminance([data[i], data[i + 1], data[i + 2]]);
-      if (l < min) min = l;
-      if (l > max) max = l;
+    const box = await page.locator('.chrome__logo').boundingBox();
+    const clip = {
+      x: Math.round(box.x), y: Math.round(box.y),
+      width: Math.round(box.width), height: Math.round(box.height),
+    };
+    const pixels = async () => {
+      const { data } = await sharp(await page.screenshot({ clip }))
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      return data;
+    };
+
+    for (const part of ['.logo__word']) {
+      const target = page.locator(`.chrome__logo ${part}`);
+      const withMark = await pixels();
+      await target.evaluate((el) => { el.style.opacity = '0'; });
+      const withoutMark = await pixels();
+      await target.evaluate((el) => { el.style.opacity = ''; });
+
+      const ratios = [];
+      for (let i = 0; i < withMark.length; i += 3) {
+        const a = [withMark[i], withMark[i + 1], withMark[i + 2]];
+        const b = [withoutMark[i], withoutMark[i + 1], withoutMark[i + 2]];
+        // próg 30 na sumie różnic kanałów odsiewa szum kompresji/antyaliasingu,
+        // a przepuszcza nawet biel na mgle (#FFF vs #EEF3F8 = 36)
+        if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) > 30) {
+          ratios.push(contrastRatio(a, b));
+        }
+      }
+
+      // Znak, którego w ogóle nie widać (biel na bieli slajdu „okolica"), nie
+      // zmienia ŻADNEGO piksela — bez tej asercji mediana liczyłaby się z
+      // pustki. W poprawnym renderze każda część to ok. 770 pikseli.
+      expect(
+        ratios.length,
+        `${part} na slajdzie #${id} zmienia tylko ${ratios.length} pikseli — znaku praktycznie nie widać`
+      ).toBeGreaterThan(300);
+
+      ratios.sort((x, y) => x - y);
+      const median = ratios[Math.floor(ratios.length / 2)];
+      // 3:1 to próg WCAG 1.4.11 dla grafiki. Poprawny render daje 6,3–9,6:1,
+      // wersja z błędem C1 — 1,12:1. Margines jest szeroki w obie strony.
+      expect(
+        median,
+        `mediana kontrastu ${part} wobec tła na slajdzie #${id} = ${median.toFixed(2)}:1`
+      ).toBeGreaterThanOrEqual(3);
     }
-    const ratio = (max + 0.05) / (min + 0.05);
-    expect(
-      ratio,
-      `kontrast znaku wobec tła na slajdzie #${id} = ${ratio.toFixed(2)}:1 ` +
-        '(znak zlewa się z tłem — patrz Logo.astro/Chrome.astro)'
-    ).toBeGreaterThanOrEqual(3);
   });
 }
 
