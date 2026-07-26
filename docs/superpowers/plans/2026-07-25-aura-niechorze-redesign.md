@@ -2413,8 +2413,11 @@ test('logo intra dolatuje dokładnie na miejsce logo nagłówka', async ({ page 
     await page.reload();
 
     const boxes = await page.evaluate(async () => {
-      const intro = document.querySelector('.intro .logo');
-      const chrome = document.querySelector('.chrome__logo .logo, .chrome__logo');
+      // Mierzymy dokładnie te elementy, które mierzy i przesuwa skrypt intra
+      // (.intro__mark i .chrome__logo). Gdyby test brał elementy wewnętrzne,
+      // a skrypt zewnętrzne, oba mogłyby się rozjechać, a żaden by nie zgłosił błędu.
+      const intro = document.querySelector('.intro__mark');
+      const chrome = document.querySelector('.chrome__logo');
       if (!intro || !chrome) return null;
       // poczekaj az animacje intra dobiegna konca
       await Promise.all(
