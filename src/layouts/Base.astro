@@ -18,6 +18,18 @@ const canonical = SITE + PATHS[content.lang];
 <!doctype html>
 <html lang={content.htmlLang}>
   <head>
+    <!--
+      Uruchamia się zanim cokolwiek inne w <head> zdąży się wykonać: to zwykły,
+      blokujący skrypt (nie moduł, nie async/defer), więc parser HTML czeka na
+      niego, zanim narysuje cokolwiek w <body>. Dodaje klasę "js" na <html> —
+      jedyny sposób, żeby CSS mogło odróżnić "skrypty działają" od "skryptów
+      nie ma" bez migotania. Patrz Chrome.astro: domyślnie stała warstwa ma
+      przyciemniające tło (scrim) gwarantujące kontrast białego tekstu nad
+      KAŻDYM z pięciu teł slajdów bez JS; gdy klasa "js" się pojawi, scrim
+      znika, a dynamiczne dopasowanie koloru (IntersectionObserver) przejmuje
+      kontrolę nad kontrastem tylko tam, gdzie jest potrzebne.
+    -->
+    <script is:inline>document.documentElement.classList.add('js')</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{content.meta.title}</title>

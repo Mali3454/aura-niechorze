@@ -1,5 +1,21 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import sharp from 'sharp';
+
+function srgbToLinear(c) {
+  const cs = c / 255;
+  return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+}
+function relLuminance([r, g, b]) {
+  return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+}
+function contrastRatio(rgbA, rgbB) {
+  const la = relLuminance(rgbA);
+  const lb = relLuminance(rgbB);
+  const lighter = Math.max(la, lb);
+  const darker = Math.min(la, lb);
+  return (lighter + 0.05) / (darker + 0.05);
+}
 
 const PAGES = ['/', '/de/', '/en/'];
 
@@ -211,4 +227,32 @@ test('stała warstwa jest czytelna także na jasnych slajdach', async ({ page })
     (r) => r.id === 'color-contrast'
   );
   expect(contrastIssues).toEqual([]);
+});
+
+test('stała warstwa jest czytelna na jasnym slajdzie także bez JavaScriptu', async ({ browser }) => {
+  // Bez JS nie działa IntersectionObserver, więc data-on-light nigdy się nie
+  // ustawi — dopasowanie koloru z poprzedniego testu tu nie pomoże. Warstwa
+  // musi być czytelna z samego CSS (scrim w Chrome.astro, patrz komentarz
+  // przy regule `.chrome { background: ... }`). AxeBuilder nie działa w
+  // kontekście javaScriptEnabled:false (analyze() wisi w nieskończoność —
+  // axe-core samo jest wstrzykiwanym skryptem), więc kontrast liczymy wprost
+  // z próbki piksela na zrzucie ekranu, tak jak zmierzono w raporcie zadania.
+  const ctx = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 1280, height: 800 },
+  });
+  const page = await ctx.newPage();
+  await page.goto('/#obiekt');
+
+  const buf = await page.screenshot();
+  const { data } = await sharp(buf)
+    .extract({ left: 300, top: 8, width: 4, height: 4 })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const bg = [data[0], data[1], data[2]];
+  const ratio = contrastRatio([255, 255, 255], bg);
+
+  expect(ratio, `kontrast biały tekst / tło stałej warstwy bez JS = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+
+  await ctx.close();
 });

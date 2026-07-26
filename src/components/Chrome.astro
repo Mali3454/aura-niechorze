@@ -42,7 +42,18 @@ const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
     padding: var(--space-2) clamp(1.25rem, 6vw, 6rem);
     color: var(--white);
     pointer-events: none;
+    /* Domyślny scrim: gwarantuje >=4.5:1 dla białego tekstu nad KAŻDYM z
+       pięciu teł slajdów (w tym białym i mgiełkowym), więc bez JS warstwa
+       jest czytelna wszędzie, a nie tylko tam, gdzie zdąży zadziałać
+       IntersectionObserver. Gdy skrypt uruchomi się (patrz Base.astro, klasa
+       "js" na <html>), scrim znika i wraca oryginalny, przezroczysty wygląd —
+       kontrast na jasnych slajdach przejmuje wtedy dynamiczne data-on-light
+       poniżej. Bez tego scrimu wariant "brak JS" powtarzałby dokładnie ten
+       błąd, który ten komponent ma naprawiać.
+    */
+    background: rgba(2, 64, 118, .75);
   }
+  :global(html.js) .chrome { background: none; }
   .chrome > * { pointer-events: auto; }
   .chrome__logo { width: clamp(74px, 8vw, 108px); margin-inline-end: auto; }
   .chrome__lang { display: flex; gap: 0.15rem; font-size: 0.82rem; font-weight: 600; }
