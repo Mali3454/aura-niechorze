@@ -159,8 +159,10 @@ const FULL_SIZES = '96vw';
   .gallery__dialog img { max-height: 78dvh; width: auto; margin-inline: auto; }
   .gallery__dialog figcaption { padding: .85rem 1.25rem; font-size: .85rem; opacity: .85; max-width: 60ch; }
   .gallery__dialog button {
-    position: absolute; background: rgba(255,255,255,.14); color: var(--white);
-    border: 0; border-radius: 50%; width: 2.75rem; height: 2.75rem; font-size: 1.2rem; cursor: pointer;
+    position: absolute; display: grid; place-items: center;
+    background: rgba(255,255,255,.14); color: var(--white);
+    border: 0; border-radius: 50%; width: 2.75rem; height: 2.75rem;
+    font-size: 1.2rem; line-height: 1; padding: 0; cursor: pointer;
   }
   .gallery__dialog button:hover { background: rgba(255,255,255,.28); }
   [data-gallery-prev] { left: .75rem; top: 50%; transform: translateY(-50%); }
