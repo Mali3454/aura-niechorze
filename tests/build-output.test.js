@@ -307,3 +307,35 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(html).toContain('--fly-scale');
   });
 });
+
+describe('reguła wypełnienia logo (przecięte kontury liter A i R)', () => {
+  // Logo.astro nie miało w ogóle atrybutu fill-rule, więc ścieżki renderowały
+  // się domyślną regułą "nonzero" — a te konkretne ścieżki (wyeksportowane z
+  // narzędzia do trasowania) zakładają "evenodd": bez niego wewnętrzne kontury
+  // liter "A" i "R" (i zamknięte pasy fali) wypełniają się na czarno zamiast
+  // zostać puste. Sprawdzamy to na każdej z trzech instancji <Logo> w
+  // wyrenderowanym HTML (Chrome.astro, Intro.astro, Contact.astro), a nie
+  // tylko w źródle komponentu — inaczej regresja w kompilacji/atrybutach
+  // przekazywanych przez Astro umknęłaby testowi.
+  it.each(PAGES)('$path: każda z trzech instancji logo ma fill-rule="evenodd" na obu ścieżkach', ({ path }) => {
+    const d = doc(path);
+    const logos = d.querySelectorAll('.logo');
+    expect(logos.length, 'oczekiwano trzech wystąpień logo (nagłówek, intro, stopka)').toBe(3);
+    for (const logo of logos) {
+      const wavePath = logo.querySelector('.logo__wave path');
+      const wordPath = logo.querySelector('.logo__word path');
+      expect(wavePath, 'brak ścieżki fali w instancji logo').not.toBeNull();
+      expect(wordPath, 'brak ścieżki napisu w instancji logo').not.toBeNull();
+      expect(wavePath.getAttribute('fill-rule')).toBe('evenodd');
+      expect(wordPath.getAttribute('fill-rule')).toBe('evenodd');
+    }
+  });
+
+  it('favicon.svg (wytrasowany z tych samych ścieżek) też ma fill-rule="evenodd"', () => {
+    const svg = readFileSync('public/favicon.svg', 'utf8');
+    const { document: fdoc } = parseHTML(svg);
+    const path = fdoc.querySelector('path');
+    expect(path).not.toBeNull();
+    expect(path.getAttribute('fill-rule')).toBe('evenodd');
+  });
+});

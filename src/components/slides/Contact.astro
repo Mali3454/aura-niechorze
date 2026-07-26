@@ -89,5 +89,12 @@ const year = new Date().getFullYear();
     display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
     font-size: .8rem; opacity: .75; flex-wrap: wrap;
   }
-  .contact :global(.contact__mark) { width: 66px; }
+  /* .contact is the class Contact.astro passes into Slide.astro, but the
+     <section> it decorates is rendered by Slide.astro's own template, so it
+     never carries this file's data-astro-cid scope attribute — and Logo is a
+     user component (not Picture), so its rendered root keeps Logo's own
+     scope, never Contact's. `.contact :global(.contact__mark)` therefore
+     compiled to `.contact[data-astro-cid-xxx] .contact__mark`, which never
+     matched. Kept fully global so it matches by class name alone. */
+  :global(.contact .contact__mark) { width: 66px; }
 </style>

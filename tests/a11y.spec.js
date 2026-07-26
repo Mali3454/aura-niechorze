@@ -199,6 +199,39 @@ test('logo intra dolatuje dokładnie na miejsce logo nagłówka', async ({ page 
   }
 });
 
+test('zdjęcie tła hero jest wyrenderowane jako tło sekcji, nie w normalnym przepływie', async ({ page }) => {
+  // Hero.astro przekazuje klasę "hero" do Slide.astro, ale to Slide.astro
+  // renderuje samą <section> — więc sekcja nigdy nie niesie atrybutu scope
+  // (data-astro-cid-...) pliku Hero.astro. Selektor `.hero .hero__bg`
+  // (z ancestorem) kompilował się do `.hero[data-astro-cid-xxx] .hero__bg`,
+  // które nigdy nie pasowało: zdjęcie renderowało się w normalnym przepływie
+  // (swoja natywna wysokość, przed blokiem tekstu), zamiast jako
+  // position:absolute tło pod spodem. Sprawdzamy geometrię wprost, żeby
+  // regresja tej reguły (np. przywrócenie selektora z ancestorem) faktycznie
+  // zawaliła test, zamiast tylko sprawdzać obecność klasy CSS.
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+
+  const info = await page.evaluate(() => {
+    const section = document.querySelector('#start');
+    const img = document.querySelector('.hero__bg');
+    const s = section.getBoundingClientRect();
+    const i = img.getBoundingClientRect();
+    return {
+      position: getComputedStyle(img).position,
+      section: { top: s.top, left: s.left, width: s.width, height: s.height },
+      img: { top: i.top, left: i.left, width: i.width, height: i.height },
+    };
+  });
+
+  expect(info.position, 'zdjęcie hero nie jest position:absolute — reguła .hero__bg się nie stosuje').toBe('absolute');
+  expect(Math.abs(info.img.top - info.section.top), 'góra zdjęcia nie pokrywa się z górą sekcji').toBeLessThanOrEqual(2);
+  expect(Math.abs(info.img.left - info.section.left), 'lewa krawędź zdjęcia nie pokrywa się z sekcją').toBeLessThanOrEqual(2);
+  expect(Math.abs(info.img.width - info.section.width), 'zdjęcie nie pokrywa szerokości sekcji').toBeLessThanOrEqual(2);
+  expect(Math.abs(info.img.height - info.section.height), 'zdjęcie nie pokrywa wysokości sekcji (renderuje się w normalnym przepływie ze swoją natywną wysokością)').toBeLessThanOrEqual(2);
+});
+
 test('każdy slajd jest osiągalny kotwicą', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Escape');

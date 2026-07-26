@@ -31,11 +31,22 @@ const { content } = Astro.props;
 </Slide>
 
 <style>
-  .hero { padding-block-end: clamp(6rem, 16vh, 10rem); }
-  .hero :global(.hero__bg) {
+  /* .hero is the class Hero.astro passes to Slide.astro, but the <section> it
+     decorates is rendered by Slide.astro's own template — so it never carries
+     this file's data-astro-cid scope attribute and a plain scoped `.hero { }`
+     rule compiles to `.hero[data-astro-cid-xxx]{ }`, which never matches
+     anything in the built HTML. Unlike Picture's rendered <img> (see
+     .hero__bg below), there's no element of this file's own to attach the
+     scope to, so these two section-level rules stay :global and match by
+     class name alone. */
+  :global(.hero) { padding-block-end: clamp(6rem, 16vh, 10rem); }
+  /* The plain scoped selector (no ancestor, no :global) works because Astro
+     forwards this file's own scope attribute onto Picture's rendered <img>
+     directly, the same reason About.astro's .about__photo rule works. */
+  .hero__bg {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
   }
-  .hero::before {
+  :global(.hero)::before {
     /* The copy block sits vertically centered (.slide uses align-content: center over
        min-height: 100dvh), i.e. right around the 50% mark — and that is also where the
        photo is brightest (the building's lit windows at dusk). A gradient that dips in
