@@ -44,6 +44,27 @@ a { color: inherit; }
   position: relative;
 }
 .slide__inner { width: min(100%, 78rem); margin-inline: auto; }
+
+/* Nagłówek slajdu. Ta jedna deklaracja stała wcześniej dosłownie w czterech
+   plikach slajdów (About, Apartment, Area, Contact) — cztery kopie tego samego
+   rozmiaru, każda gotowa rozjechać się osobno. */
+.slide h2 { font-size: var(--step-4); }
+
+/* Etykieta „eyebrow”: mała kapitalikowa nadpodpisowa etykieta. Też była
+   kopiowana — i kopie ZDĄŻYŁY się rozjechać: po tym, jak test w przeglądarce
+   złapał kontrast 3,81:1 przy opacity .65, podniesienie do .8 trafiło do dwóch
+   z trzech kopii, a .contact__label zostało na .65. Jedna definicja usuwa całą
+   klasę tego błędu; opacity .8 to ta wartość, która przechodzi kontrast.
+   Uwaga: dawna .stat__label nie miała font-weight (dziedziczyła 300 z body) —
+   ujednolicenie na 600 jest świadomą, drobną zmianą wyglądu podpisów liczb,
+   przyjętą po to, żeby istniała JEDNA definicja etykiety, a nie dwie podobne. */
+.eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: .8;
+}
 .slide--white { background: var(--white); color: var(--navy); }
 .slide--mist  { background: var(--mist);  color: var(--navy); }
 .slide--navy  { background: var(--navy-deep); color: var(--white); }

@@ -22,7 +22,7 @@ const year = new Date().getFullYear();
 
   <div class="contact__cols">
     <div>
-      <h3 class="contact__label">{content.contact.addressLabel}</h3>
+      <h3 class="eyebrow">{content.contact.addressLabel}</h3>
       <address>
         {FACTS.name}<br />
         {FACTS.street}<br />
@@ -61,7 +61,6 @@ const year = new Date().getFullYear();
 </script>
 
 <style>
-  h2 { font-size: var(--step-4); }
   .contact__lead { margin-top: var(--space-2); font-size: var(--step-1); }
   .contact__phone {
     display: inline-block; margin-top: var(--space-2);
@@ -70,7 +69,6 @@ const year = new Date().getFullYear();
   .contact__phone:hover { color: var(--sky); }
   .contact__cols { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
   @media (min-width: 60rem) { .contact__cols { grid-template-columns: 1fr 1fr; align-items: start; } }
-  .contact__label { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .65; font-weight: 600; }
   address { font-style: normal; margin-top: .5rem; line-height: 1.7; }
   .contact__actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
   .contact__actions a { text-underline-offset: .25em; }
