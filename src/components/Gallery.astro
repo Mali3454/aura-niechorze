@@ -123,6 +123,20 @@ const FULL_SIZES = '96vw';
     });
 
     dialog.addEventListener('close', () => opener?.focus());
+
+    // Przesuwanie palcem: liczymy tylko poziomy dystans na dotknięciu figury
+    // (nie całego dialogu, żeby nie łapać gestów na przyciskach), próg 40px
+    // odsiewa przypadkowe drgnięcia palca od zamierzonego przesunięcia.
+    const figure = dialog.querySelector('figure');
+    let touchStartX = null;
+    figure.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    figure.addEventListener('touchend', (e) => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      touchStartX = null;
+      if (Math.abs(dx) < 40) return;
+      show(dx < 0 ? current + 1 : current - 1);
+    }, { passive: true });
   }
 </script>
 
@@ -149,7 +163,7 @@ const FULL_SIZES = '96vw';
     border: 0; border-radius: 50%; width: 2.75rem; height: 2.75rem; font-size: 1.2rem; cursor: pointer;
   }
   .gallery__dialog button:hover { background: rgba(255,255,255,.28); }
-  [data-gallery-prev] { left: .75rem; top: 50%; }
-  [data-gallery-next] { right: .75rem; top: 50%; }
+  [data-gallery-prev] { left: .75rem; top: 50%; transform: translateY(-50%); }
+  [data-gallery-next] { right: .75rem; top: 50%; transform: translateY(-50%); }
   [data-gallery-close] { right: .75rem; top: .75rem; }
 </style>

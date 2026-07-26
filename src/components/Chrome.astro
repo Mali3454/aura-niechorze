@@ -85,13 +85,14 @@ const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
   }
   .chrome__call:hover { background: var(--white); color: var(--navy); }
 
+  /* Numer telefonu w nagłówku dubluje się z przyciskiem CTA na hero i
+     numerem na slajdzie kontaktu — na wąskim ekranie w rzędzie nagłówka
+     (logo + PL/DE/EN + numer) i tak by się nie zmieścił bez zawijania, więc
+     zamiast poprzedniego przyklejonego paska u dołu ekranu po prostu go tu
+     chowamy; wywołanie telefonu zostaje dostępne przez te dwa pozostałe
+     miejsca. */
   @media (max-width: 40rem) {
-    .chrome__call {
-      position: fixed; inset: auto 0 0 0; z-index: 30;
-      border: 0; border-radius: 0; text-align: center;
-      background: var(--navy); color: var(--white);
-      padding: 1rem; font-size: 1.05rem;
-    }
+    .chrome__call { display: none; }
   }
 
   /* Jedno miejsce, w którym stała warstwa zmienia kolor na jasnych slajdach.
