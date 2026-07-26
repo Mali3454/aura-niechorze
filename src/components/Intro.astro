@@ -39,7 +39,7 @@ import Logo from './Logo.astro';
       }
       // Zapasowa siatka bezpieczeństwa: gdyby z jakiegoś powodu lot nigdy się
       // nie uruchomił (np. brak elementu docelowego), nakładka i tak zniknie.
-      timers.push(setTimeout(finish, 4000));
+      timers.push(setTimeout(finish, 2600));
 
       // Lot do rogu: mierzymy pozycję i rozmiar logo w nagłówku DOKŁADNIE w
       // chwili startu animacji (nie przy wczytaniu strony), więc wynik jest
@@ -80,7 +80,7 @@ import Logo from './Logo.astro';
             }
           });
         }
-        timers.push(setTimeout(finish, 3000));
+        timers.push(setTimeout(finish, 1600));
       };
 
       try {
@@ -90,7 +90,15 @@ import Logo from './Logo.astro';
         void intro.offsetWidth;
         intro.classList.add('is-playing');
         sessionStorage.setItem('aura-intro', '1');
-        timers.push(setTimeout(fly, 2400));
+        // Budżet intra: ok. 2 s łącznie (było 3,3 s). Rozpiska — rysowanie fali
+        // 0,1–0,85 s, wjazd napisu 0,62–1,02 s, START LOTU 1,15 s, lądowanie
+        // 1,9 s. Najtańsza sekunda była w martwej przerwie: napis siadał w
+        // 1,5 s, a lot startował dopiero w 2,4 s — 0,9 s bezruchu na białym
+        // ekranie zasłaniającym numer telefonu. Ta przerwa zeszła do 0,13 s,
+        // reszta faz skrócona proporcjonalnie (rysowanie 1 s→0,75 s, napis
+        // 0,55 s→0,4 s, lot 0,9 s→0,75 s). Cały efekt zostaje: rysowanie,
+        // osadzenie napisu, lot do rogu.
+        timers.push(setTimeout(fly, 1150));
       } catch {
         // Coś w sekwencji rzuciło (np. zapis do sessionStorage) — nie
         // zostawiamy zablokowanego przewijania bez drogi wyjścia.
@@ -118,14 +126,14 @@ import Logo from './Logo.astro';
     display: none;
   }
   .intro.is-flying {
-    transition: opacity 0.9s cubic-bezier(.7, 0, .2, 1);
+    transition: opacity 0.75s cubic-bezier(.7, 0, .2, 1);
     opacity: 0;
   }
 
   .intro__mark {
     width: min(46vw, 30rem);
     transform-origin: top left;
-    transition: transform 0.9s cubic-bezier(.7, 0, .2, 1);
+    transition: transform 0.75s cubic-bezier(.7, 0, .2, 1);
   }
   .intro.is-flying .intro__mark {
     transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-scale, 1));
@@ -135,10 +143,10 @@ import Logo from './Logo.astro';
   .intro :global(.logo__word) { opacity: 0; transform: translateY(10px); }
 
   .intro.is-playing :global(.logo__wave) {
-    animation: intro-draw 1s cubic-bezier(.62, 0, .3, 1) .15s forwards;
+    animation: intro-draw .75s cubic-bezier(.62, 0, .3, 1) .1s forwards;
   }
   .intro.is-playing :global(.logo__word) {
-    animation: intro-rise .55s ease .95s forwards;
+    animation: intro-rise .4s ease .62s forwards;
   }
 
   @keyframes intro-draw { to { clip-path: inset(0 0% 0 0); } }

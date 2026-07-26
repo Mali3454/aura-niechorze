@@ -168,7 +168,9 @@ describe('każdy selektor w wyemitowanym CSS pasuje do czegoś w wyemitowanym HT
       for (const raw of splitSelectorList(prelude)) {
         if (seen.has(raw)) continue;
         seen.add(raw);
-        if (CONDITIONAL_ON_FACTS.has(raw)) continue;
+        // porównujemy bez atrybutu zakresu Astro, żeby lista wyjątków
+        // opisywała klasę, a nie losowy hash kompilacji
+        if (CONDITIONAL_ON_FACTS.has(raw.replace(/\[data-astro-cid-[^\]]*\]/g, '').trim())) continue;
         const probe = stripRuntimeTokens(raw);
         if (!probe) continue; // selektor był w całości pseudo-elementem
         try {

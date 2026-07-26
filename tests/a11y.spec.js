@@ -24,7 +24,8 @@ for (const path of PAGES) {
     await page.goto(path);
     // Zdejmij intro, żeby axe badał właściwą treść, a nie nakładkę.
     // Hojny timeout, bo jeśli Escape padnie zanim skrypt intro się wykona,
-    // nakładka i tak zgaśnie sama po 3,2 s — test ma nie być chwiejny.
+    // nakładka i tak zgaśnie sama (budżet intra to ok. 1,9 s, siatka
+    // bezpieczeństwa 2,6 s) — test ma nie być chwiejny.
     await page.keyboard.press('Escape');
     await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
     const results = await new AxeBuilder({ page })
@@ -242,25 +243,67 @@ test('każdy slajd jest osiągalny kotwicą', async ({ page }) => {
   }
 });
 
-test('stała warstwa jest czytelna także na jasnych slajdach', async ({ page }) => {
-  await page.goto('/');
-  await page.keyboard.press('Escape');
-  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
-  await page.locator('.dots a[href="#okolica"]').click();
-  await page.waitForTimeout(600);
-  const results = await new AxeBuilder({ page })
-    .include('.chrome')
-    .withTags(['wcag2aa'])
-    .analyze();
-  // axe klasyfikuje kolizję koloru stałej warstwy z jasnym tłem slajdu jako
-  // "incomplete" (nie "violation"), bo warstwa jest fixed i axe nie jest
-  // pewien tła bez renderowania — mimo to fgColor/bgColor w danych są
-  // jednoznaczne (białe na białym). Sprawdzamy więc obie tablice.
-  const contrastIssues = [...results.violations, ...results.incomplete].filter(
-    (r) => r.id === 'color-contrast'
-  );
-  expect(contrastIssues).toEqual([]);
-});
+// Oba jasne slajdy, nie tylko jeden. Wcześniej test pokrywał wyłącznie
+// "okolica" — a błąd znikającego logo siedział tak samo na "obiekt".
+const LIGHT_SLIDES = ['obiekt', 'okolica'];
+
+for (const id of LIGHT_SLIDES) {
+  test(`stała warstwa jest czytelna tekstowo na jasnym slajdzie #${id}`, async ({ page }) => {
+    await page.goto('/');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+    await page.locator(`.dots a[href="#${id}"]`).click();
+    await page.waitForTimeout(600);
+    // Najpierw upewnij się, że warstwa faktycznie weszła w tryb jasny — bez
+    // tego test mógłby przechodzić, badając warstwę nad ciemnym slajdem.
+    await expect(page.locator('.chrome')).toHaveAttribute('data-on-light', '');
+    const results = await new AxeBuilder({ page })
+      .include('.chrome')
+      .withTags(['wcag2aa'])
+      .analyze();
+    // axe klasyfikuje kolizję koloru stałej warstwy z jasnym tłem slajdu jako
+    // "incomplete" (nie "violation"), bo warstwa jest fixed i axe nie jest
+    // pewien tła bez renderowania — mimo to fgColor/bgColor w danych są
+    // jednoznaczne (białe na białym). Sprawdzamy więc obie tablice.
+    const contrastIssues = [...results.violations, ...results.incomplete].filter(
+      (r) => r.id === 'color-contrast'
+    );
+    expect(contrastIssues).toEqual([]);
+  });
+
+  test(`znak w nagłówku jest widoczny na jasnym slajdzie #${id}`, async ({ page }) => {
+    // Logo to wklejony <svg> z fill="currentColor". axe NIE widzi koloru
+    // grafiki wektorowej — reguła color-contrast dotyczy tekstu — więc test
+    // powyżej przechodził na zielono, kiedy znak był biały na mgle (~1:1).
+    // Dokładnie tak błąd C1 przeżył cztery rundy przeglądu i 121 asercji.
+    // Dlatego mierzymy PIKSELE: robimy zrzut samego elementu logo i liczymy
+    // kontrast między jego najciemniejszym a najjaśniejszym pikselem. To
+    // sprawdzenie nie zna mechanizmu (inline style, klasa, dziedziczenie) —
+    // reaguje na to, co widzi gość. Próg 3:1 = WCAG 1.4.11 (grafika).
+    await page.goto('/');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+    await page.locator(`.dots a[href="#${id}"]`).click();
+    await page.waitForTimeout(600);
+    await expect(page.locator('.chrome')).toHaveAttribute('data-on-light', '');
+
+    const buf = await page.locator('.chrome__logo').screenshot();
+    const { data, info } = await sharp(buf).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let min = Infinity;
+    let max = -Infinity;
+    for (let i = 0; i < data.length; i += info.channels) {
+      const l = relLuminance([data[i], data[i + 1], data[i + 2]]);
+      if (l < min) min = l;
+      if (l > max) max = l;
+    }
+    const ratio = (max + 0.05) / (min + 0.05);
+    expect(
+      ratio,
+      `kontrast znaku wobec tła na slajdzie #${id} = ${ratio.toFixed(2)}:1 ` +
+        '(znak zlewa się z tłem — patrz Logo.astro/Chrome.astro)'
+    ).toBeGreaterThanOrEqual(3);
+  });
+}
 
 test('stała warstwa jest czytelna na jasnym slajdzie także bez JavaScriptu', async ({ browser }) => {
   // Bez JS nie działa IntersectionObserver, więc data-on-light nigdy się nie

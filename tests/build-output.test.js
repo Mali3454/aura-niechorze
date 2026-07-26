@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { parseHTML } from 'linkedom';
 import { FACTS } from '../src/content/facts.ts';
 
@@ -305,6 +305,130 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
     expect(html).toContain('--fly-x');
     expect(html).toContain('--fly-y');
     expect(html).toContain('--fly-scale');
+  });
+});
+
+describe('waga obrazów wysyłanych gościowi', () => {
+  it('build nie emituje ani jednego zapasowego PNG', () => {
+    // Bez fallbackFormat="webp" Astro robi zapasem PNG: 39 plików, do 9,7 MB
+    // każdy, łącznie 86 z 96 MB katalogu dist. Gość na telefonie nad morzem
+    // płaci za to transferem.
+    const pngs = readdirSync('dist/_astro').filter((f) => f.endsWith('.png'));
+    expect(pngs, `PNG-i w dist/_astro: ${pngs.join(', ')}`).toEqual([]);
+  });
+
+  it.each(PAGES)('$path nie linkuje żadnego .png', ({ path }) => {
+    expect(readFileSync(path, 'utf8')).not.toMatch(/\.png/);
+  });
+
+  it.each(PAGES)('$path: podgląd galerii dostaje duży zestaw webp, nie srcset miniatury', ({ path }) => {
+    const d = doc(path);
+    const items = [...d.querySelectorAll('#apartament .gallery__item')];
+    expect(items.length).toBeGreaterThanOrEqual(6);
+    for (const item of items) {
+      const srcset = item.getAttribute('data-full-srcset');
+      expect(srcset, 'przycisk galerii bez data-full-srcset').toBeTruthy();
+      expect(srcset, 'podgląd nie może serwować formatu zapasowego').not.toMatch(/\.(png|jpe?g)/);
+      const widths = [...srcset.matchAll(/(\d+)w/g)].map((m) => Number(m[1]));
+      // miniatura ma maksymalnie 840 px — podgląd rozciąga zdjęcie na 78%
+      // wysokości okna, więc ten sam zestaw dawał obrazek rozciągany w górę
+      expect(Math.max(...widths), `największa szerokość w podglądzie: ${widths}`).toBeGreaterThanOrEqual(1400);
+      expect(item.getAttribute('data-full-src')).toBeTruthy();
+    }
+    const dialogImg = d.querySelector('#apartament dialog img[data-gallery-image]');
+    expect(dialogImg.getAttribute('sizes'), 'podgląd bez sizes wybierze najszerszy plik').toBeTruthy();
+  });
+});
+
+describe('podgląd linku w komunikatorze (og:image)', () => {
+  it.each(PAGES)('$path ma og:image w JPEG 1200x630 z zadeklarowanymi wymiarami', ({ path }) => {
+    // Scrapery Facebooka i WhatsAppa nie renderują WebP w og:image, a link do
+    // tego obiektu rozchodzi się właśnie komunikatorem.
+    const d = doc(path);
+    const get = (prop) => d.querySelector(`meta[property="${prop}"]`)?.getAttribute('content');
+    const src = get('og:image');
+    expect(src, 'brak og:image').toBeTruthy();
+    expect(src).toMatch(/^https:\/\/aura-niechorze\.pl\//);
+    expect(src, 'og:image nie może być WebP').toMatch(/\.jpe?g$/);
+    expect(get('og:image:type')).toBe('image/jpeg');
+    expect(get('og:image:width')).toBe('1200');
+    expect(get('og:image:height')).toBe('630');
+    const file = 'dist' + new URL(src).pathname;
+    expect(existsSync(file), `og:image ${src} nie istnieje w dist/`).toBe(true);
+  });
+});
+
+describe('preload podzbioru fontu odpowiada literom w nagłówku LCP', () => {
+  it.each(PAGES)('$path preloaduje dokładnie te podzbiory, których używa h1', ({ path }) => {
+    const d = doc(path);
+    const preloaded = [...d.querySelectorAll('link[rel="preload"][as="font"]')].map((l) =>
+      l.getAttribute('href')
+    );
+    expect(preloaded.some((h) => /outfit-latin-wght/.test(h)), 'brak preloadu podzbioru latin').toBe(true);
+
+    // ż (U+017C) w polskim h1 mieszka w latin-ext — jedynym podzbiorze, który
+    // wcześniej NIE był preloadowany, akurat na stronie, której tekst LCP go
+    // potrzebuje. DE/EN nie mają takich znaków w h1, więc 14,8 kB byłoby tam
+    // czystym kosztem.
+    const h1 = d.querySelector('h1').textContent;
+    const needsExt = /[Ā-ʺʽ-˅Ḁ-ẟⱠ-Ɀ]/.test(h1);
+    const hasExt = preloaded.some((h) => /outfit-latin-ext-wght/.test(h));
+    expect(hasExt, `h1 "${h1}" ${needsExt ? 'wymaga' : 'nie wymaga'} latin-ext`).toBe(needsExt);
+  });
+
+  it('polski h1 naprawdę zawiera znak z latin-ext (inaczej test wyżej niczego nie pilnuje)', () => {
+    expect(doc('dist/index.html').querySelector('h1').textContent).toContain('ż');
+  });
+});
+
+describe('dane niepotwierdzone są podłączone, a nie martwe', () => {
+  // Dokumentacja obiecuje właścicielowi, że wpisanie liczby coś odblokuje.
+  // Te asercje pilnują, że obietnica jest prawdziwa: pole musi być CZYTANE
+  // w kodzie, który renderuje stronę, a nie tylko zadeklarowane w facts.ts.
+  const readers = {
+    areaSqm: ['src/content/pl.ts', 'src/content/de.ts', 'src/content/en.ts'],
+    beachDistanceM: ['src/content/pl.ts', 'src/content/de.ts', 'src/content/en.ts'],
+    lighthouseDistance: ['src/content/pl.ts', 'src/content/de.ts', 'src/content/en.ts'],
+    narrowGaugeDistance: ['src/content/pl.ts', 'src/content/de.ts', 'src/content/en.ts'],
+    oceanariumDistance: ['src/content/pl.ts', 'src/content/de.ts', 'src/content/en.ts'],
+    facebookUrl: ['src/components/slides/Contact.astro', 'src/components/StructuredData.astro'],
+  };
+  it.each(Object.entries(readers))('FACTS.%s jest odczytywane w kodzie strony', (field, files) => {
+    const used = files.filter((f) => readFileSync(f, 'utf8').includes(`FACTS.${field}`));
+    expect(used, `FACTS.${field} nie jest czytane w: ${files.join(', ')}`).toEqual(files);
+  });
+
+  it.each(PAGES)('$path nie publikuje wiersza „odległość do plaży”, dopóki liczby brak', ({ path }) => {
+    // beachDistanceM jest null, bo źródła podają raz 50 m, raz 300 m. Lista
+    // odległości to same zmierzone liczby — wpis „tuż obok” czytał się w niej
+    // jak pomiar. Do czasu potwierdzenia wiersza po prostu nie ma.
+    const names = [...doc(path).querySelectorAll('#okolica .distance dt')].map((dt) =>
+      dt.textContent.toLowerCase()
+    );
+    for (const n of names) {
+      expect(n, 'wiersz odległości do plaży w Niechorzu bez potwierdzonej liczby').not.toMatch(
+        /^(plaża w niechorzu|strand in niechorze|niechorze beach)$/
+      );
+    }
+  });
+});
+
+describe('jedno źródło adresu strony', () => {
+  it('domena nie jest przepisana z ręki w kodzie źródłowym poza astro.config', () => {
+    // Canonical, wszystkie hreflangi, og:url, og:image i JSON-LD karmią się z
+    // Astro.site. Każda dodatkowa kopia adresu to cichy rozjazd SEO.
+    const sources = [
+      'src/layouts/Base.astro',
+      'src/components/StructuredData.astro',
+      'src/pages/index.astro',
+    ];
+    for (const f of sources) {
+      const code = readFileSync(f, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '');
+      expect(code, `adres strony wpisany z ręki w ${f}`).not.toContain('aura-niechorze.pl');
+    }
+    expect(readFileSync('astro.config.mjs', 'utf8')).toContain('https://aura-niechorze.pl');
   });
 });
 
