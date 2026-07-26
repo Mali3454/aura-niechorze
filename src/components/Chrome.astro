@@ -66,4 +66,31 @@ const ALL_LANGS: Lang[] = ['pl', 'de', 'en'];
       padding: 1rem; font-size: 1.05rem;
     }
   }
+
+  .chrome[data-on-light] { color: var(--navy); }
+  /* Logo.astro ustawia kolor inline (style="color:...") na własnym elemencie
+     wg propsa variant="white" — nie dziedziczy koloru z .chrome, więc trzeba
+     go nadpisać osobno, inaczej znak zniknie na jasnym slajdzie. */
+  .chrome[data-on-light] .chrome__logo .logo { color: var(--navy) !important; }
+  .chrome[data-on-light] .chrome__call { border-color: rgba(4,71,122,.5); }
+  .chrome[data-on-light] .chrome__call:hover { background: var(--navy); color: var(--white); }
+  .chrome[data-on-light] .chrome__lang-current { background: rgba(4,71,122,.12); }
+  .chrome[data-on-light] .chrome__lang a:hover { background: rgba(4,71,122,.08); }
 </style>
+
+<script>
+  const chrome = document.querySelector('.chrome');
+  const LIGHT = new Set(['obiekt', 'okolica']);
+  if (chrome) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          chrome.toggleAttribute('data-on-light', LIGHT.has(e.target.id));
+        }
+      },
+      { threshold: 0.55 }
+    );
+    for (const s of document.querySelectorAll('main section')) io.observe(s);
+  }
+</script>

@@ -192,3 +192,23 @@ test('każdy slajd jest osiągalny kotwicą', async ({ page }) => {
     await expect(page.locator(`#${id}`)).toBeInViewport({ ratio: 0.5 });
   }
 });
+
+test('stała warstwa jest czytelna także na jasnych slajdach', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.intro')).toBeHidden({ timeout: 6000 });
+  await page.locator('.dots a[href="#okolica"]').click();
+  await page.waitForTimeout(600);
+  const results = await new AxeBuilder({ page })
+    .include('.chrome')
+    .withTags(['wcag2aa'])
+    .analyze();
+  // axe klasyfikuje kolizję koloru stałej warstwy z jasnym tłem slajdu jako
+  // "incomplete" (nie "violation"), bo warstwa jest fixed i axe nie jest
+  // pewien tła bez renderowania — mimo to fgColor/bgColor w danych są
+  // jednoznaczne (białe na białym). Sprawdzamy więc obie tablice.
+  const contrastIssues = [...results.violations, ...results.incomplete].filter(
+    (r) => r.id === 'color-contrast'
+  );
+  expect(contrastIssues).toEqual([]);
+});
