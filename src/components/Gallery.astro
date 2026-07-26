@@ -72,9 +72,21 @@ const FULL_SIZES = '96vw';
       <img data-gallery-image src="" srcset="" sizes={FULL_SIZES} alt="" />
       <figcaption data-gallery-caption></figcaption>
     </figure>
-    <button type="button" data-gallery-prev aria-label={labels.prev}>&#8592;</button>
-    <button type="button" data-gallery-next aria-label={labels.next}>&#8594;</button>
-    <button type="button" data-gallery-close aria-label={labels.close}>&#215;</button>
+    <button type="button" data-gallery-prev aria-label={labels.prev}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6" />
+      </svg>
+    </button>
+    <button type="button" data-gallery-next aria-label={labels.next}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 6l6 6-6 6" />
+      </svg>
+    </button>
+    <button type="button" data-gallery-close aria-label={labels.close}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
   </dialog>
 </div>
 
@@ -162,8 +174,9 @@ const FULL_SIZES = '96vw';
     position: absolute; display: grid; place-items: center;
     background: rgba(255,255,255,.14); color: var(--white);
     border: 0; border-radius: 50%; width: 2.75rem; height: 2.75rem;
-    font-size: 1.2rem; line-height: 1; padding: 0; cursor: pointer;
+    padding: 0; cursor: pointer;
   }
+  .gallery__dialog button svg { width: 1.3rem; height: 1.3rem; display: block; }
   .gallery__dialog button:hover { background: rgba(255,255,255,.28); }
   [data-gallery-prev] { left: .75rem; top: 50%; transform: translateY(-50%); }
   [data-gallery-next] { right: .75rem; top: 50%; transform: translateY(-50%); }
