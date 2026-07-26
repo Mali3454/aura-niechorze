@@ -5,3 +5,7 @@ dist/
 *.local
 .claude/
 .superpowers/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

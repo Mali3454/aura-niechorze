@@ -43,6 +43,22 @@ const { content } = Astro.props;
   .about__stats { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-4) 0 0; }
   .stat { display: flex; flex-direction: column-reverse; }
   .stat__value { margin: 0; font-size: var(--step-3); font-weight: 200; line-height: 1; }
-  .stat__label { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .65; margin-top: .35rem; }
-  .about :global(.about__photo) { width: 100%; height: auto; border-radius: 2px; }
+  .stat__label { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .8; margin-top: .35rem; }
+  /* Source photo is a tall portrait crop (1868x4000). Left unconstrained,
+     `height: auto` renders it at its native ratio and blows the slide's
+     height to several viewports, which breaks scroll-snap anchor navigation
+     (the dot for this slide lands mostly past the fold). Crop to a sane
+     ratio instead, same treatment the gallery thumbnails already use.
+     Note: previously this was `.about :global(.about__photo)`, which
+     Astro compiles to `.about[data-astro-cid-xxx] .about__photo` — but
+     the ancestor `.about` section is rendered by Slide.astro, so it never
+     carries About.astro's scope attribute and the rule never matched
+     anything. The plain scoped selector below works because Astro forwards
+     this file's scope attribute onto Picture's rendered <img> directly. */
+  /* `height: auto` must be explicit: the HTML width/height attributes
+     Picture emits (mapped from the source's raw 1868x4000 pixels) act as
+     a low-priority presentational style, and without an explicit `height`
+     declaration here that "height: 4000px" hint wins over aspect-ratio's
+     auto-sizing, since aspect-ratio only substitutes for an auto height. */
+  .about__photo { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 2px; }
 </style>

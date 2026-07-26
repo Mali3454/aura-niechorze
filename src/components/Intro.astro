@@ -48,6 +48,7 @@ import Logo from './Logo.astro';
       // przeliczenie układu w każdej klatce.
       const fly = () => {
         if (intro.hidden) return;
+        let measured = false;
         try {
           if (mark && headerLogo) {
             const from = mark.getBoundingClientRect();
@@ -57,12 +58,29 @@ import Logo from './Logo.astro';
             mark.style.setProperty('--fly-y', `${to.top - from.top}px`);
             mark.style.setProperty('--fly-scale', String(scale));
             intro.classList.add('is-flying');
+            measured = true;
           }
         } catch {
           // Pomiar się nie powiódł — mimo to kończymy przez zapasowy timeout
           // poniżej, żeby nie zablokować strony bez animacji.
         }
-        timers.push(setTimeout(finish, 950));
+        if (measured) {
+          // Kończymy dokładnie wtedy, gdy przejście opacity nakładki naprawdę
+          // się zakończy (transitionend) — nie po zgadniętym czasie. Odliczany
+          // na sztywno bufor (np. 950 ms na 0,9-sekundowe przejście) okazał się
+          // zbyt ciasny pod realnym obciążeniem głównego wątku w testach e2e:
+          // finish() ucinał przejście, zanim wizualnie dobiegło końca, więc
+          // logo znikało/przeskakiwało zamiast płynnie wylądować. Zapasowy
+          // timeout niżej to tylko siatka bezpieczeństwa, gdyby zdarzenie z
+          // jakiegoś powodu nigdy nie nadeszło.
+          intro.addEventListener('transitionend', function onDone(e) {
+            if (e.target === intro && e.propertyName === 'opacity') {
+              intro.removeEventListener('transitionend', onDone);
+              finish();
+            }
+          });
+        }
+        timers.push(setTimeout(finish, 3000));
       };
 
       try {
@@ -91,6 +109,13 @@ import Logo from './Logo.astro';
     position: fixed; inset: 0; z-index: 60;
     background: var(--white);
     display: grid; place-items: center;
+  }
+  /* Higher specificity than `.intro` so the `hidden` attribute/property
+     actually hides the overlay: without this, the author rule above
+     always wins over the UA's `[hidden] { display: none }` and the
+     element stays visible (and click-intercepting) forever. */
+  .intro[hidden] {
+    display: none;
   }
   .intro.is-flying {
     transition: opacity 0.9s cubic-bezier(.7, 0, .2, 1);
