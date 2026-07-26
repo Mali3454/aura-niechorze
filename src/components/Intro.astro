@@ -1,7 +1,5 @@
 ---
 import Logo from './Logo.astro';
-interface Props { label: string }
-const { label } = Astro.props;
 ---
 <div class="intro" hidden aria-hidden="true">
   <div class="intro__mark">
@@ -16,13 +14,12 @@ const { label } = Astro.props;
     const seen = sessionStorage.getItem('aura-intro') === '1';
 
     if (!reduced && !seen) {
-      document.documentElement.classList.add('intro-active');
-      intro.hidden = false;
-      // wymuszenie przeliczenia stylu przed startem animacji
-      void intro.offsetWidth;
-      intro.classList.add('is-playing');
-      sessionStorage.setItem('aura-intro', '1');
-
+      // Uwaga: uzbrajamy ścieżkę wyjścia (nasłuchy + timeout), zanim wykonamy
+      // cokolwiek, co może rzucić wyjątek. Blokada przewijania (intro-active)
+      // nie może nigdy przeżyć swojej drogi ucieczki — jeśli którakolwiek z
+      // poniższych operacji (np. sessionStorage.setItem, które w niektórych
+      // politykach przechowywania może rzucić mimo że getItem się powiódł)
+      // rzuci wyjątek, finish() jest już zarejestrowany i odblokuje stronę.
       const finish = () => {
         if (intro.hidden) return;
         intro.hidden = true;
@@ -36,6 +33,19 @@ const { label } = Astro.props;
         window.addEventListener(ev, finish, { passive: true });
       }
       setTimeout(finish, 3200);
+
+      try {
+        document.documentElement.classList.add('intro-active');
+        intro.hidden = false;
+        // wymuszenie przeliczenia stylu przed startem animacji
+        void intro.offsetWidth;
+        intro.classList.add('is-playing');
+        sessionStorage.setItem('aura-intro', '1');
+      } catch {
+        // Coś w sekwencji rzuciło (np. zapis do sessionStorage) — nie
+        // zostawiamy zablokowanego przewijania bez drogi wyjścia.
+        finish();
+      }
     }
   }
 </script>
