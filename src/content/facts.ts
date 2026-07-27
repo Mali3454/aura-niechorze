@@ -14,11 +14,11 @@ export const FACTS = {
   checkinTo: '21:00',
   checkoutFrom: '08:00',
   checkoutTo: '10:00',
-  cribPrice: '20 zł',
+  cribPrice: '30 zł',
 
   // === DANE NIEPOTWIERDZONE — nie publikować dopóki są null ===
   areaSqm: null as number | null,
-  beachDistanceM: null as number | null,
+  beachDistanceM: 50 as number | null,
   facebookUrl: 'https://www.facebook.com/profile.php?id=61592126218435' as string | null,
   lighthouseDistance: null as string | null,
   narrowGaugeDistance: null as string | null,

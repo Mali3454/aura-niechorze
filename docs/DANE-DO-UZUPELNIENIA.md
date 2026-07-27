@@ -12,7 +12,7 @@ zmiany na stronie.
 
 | Pole w `facts.ts` | Typ | Co potwierdzić | Co się odblokuje |
 |---|---|---|---|
-| `beachDistanceM` | liczba (metry) | Booking podaje raz 300 m, raz 50 m — potrzebna jedna liczba | Na liście odległości (slajd „Okolica") **pojawia się** wiersz „Plaża w Niechorzu — X m". Dopóki liczby nie ma, tego wiersza tam w ogóle nie ma, bo wszystkie pozostałe to pomiary. Dodatkowo zdanie pod nagłówkiem startowym zmienia się z „tuż przy plaży" na „X metrów od morza". |
+| `beachDistanceM` | liczba (metry) | ✅ Potwierdzone: 50 m | Na liście odległości (slajd „Okolica") wiersz „Plaża w Niechorzu — 50 m", statystyka „50 m / do plaży" na slajdzie „O obiekcie" i zdanie pod nagłówkiem startowym „50 metrów od morza". |
 | `areaSqm` | liczba (m²) | Metraż apartamentu | Na slajdzie „O obiekcie" **dochodzi czwarta statystyka**: „X m² / powierzchni" (odpowiednio „Wohnfläche", „of floor space"). |
 | `facebookUrl` | pełny adres URL | Adres profilu | W sekcji „Kontakt" **pojawia się link** „Facebook" obok „Wyznacz trasę", a w danych strukturalnych JSON-LD dochodzi pole `sameAs`. |
 | `lighthouseDistance` | tekst, np. `'1,2 km'` | Odległość do latarni morskiej | Na slajdzie „Okolica", pod nazwą atrakcji „Latarnia morska w Niechorzu", **pojawia się wiersz z odległością**. |

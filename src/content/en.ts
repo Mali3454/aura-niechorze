@@ -37,7 +37,7 @@ export const en: SiteContent = {
       'Aura is a small building of apartments in Niechorze, Poland, on the edge of a pine forest a short walk from the Baltic Sea. Each apartment has two levels, its own balcony facing the sea and air conditioning. There is a garden, a terrace and free parking — you leave the car at the door on arrival and have no reason to touch it again until you go home.',
     stats: [
       { value: `${FACTS.guests}`, label: 'guests' },
-      { value: '950 m', label: 'to the railway station' },
+      { value: `${FACTS.beachDistanceM} m`, label: 'to the beach' },
       { value: '200 m', label: 'to restaurants' },
       ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'of floor space' }] : []),
     ],
@@ -62,8 +62,7 @@ export const en: SiteContent = {
       `Check-in ${FACTS.checkinFrom}–${FACTS.checkinTo}`,
       `Check-out ${FACTS.checkoutFrom}–${FACTS.checkoutTo}`,
       petsPolicy,
-      'Non-smoking property',
-      `Cot ${FACTS.cribPrice} per night`,
+      `Cot ${FACTS.cribPrice} for the whole stay`,
     ],
     petsPolicy,
     gallery: {

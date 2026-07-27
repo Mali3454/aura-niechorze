@@ -37,7 +37,7 @@ export const de: SiteContent = {
       'Aura ist eine kleine Unterkunft in Niechorze an der Ostsee, am Rand eines Kiefernwaldes und wenige Schritte vom Wasser entfernt. Jede Wohnung hat zwei Ebenen, einen eigenen Balkon mit Meerblick und eine Klimaanlage. Dazu Garten, Terrasse und ein kostenfreier Parkplatz — das Auto stellen Sie bei der Ankunft ab und brauchen es bis zur Abreise nicht mehr.',
     stats: [
       { value: `${FACTS.guests}`, label: 'Personen' },
-      { value: '950 m', label: 'zum Bahnhof' },
+      { value: `${FACTS.beachDistanceM} m`, label: 'zum Strand' },
       { value: '200 m', label: 'zu Restaurants' },
       ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'Wohnfläche' }] : []),
     ],
@@ -62,8 +62,7 @@ export const de: SiteContent = {
       `Anreise ${FACTS.checkinFrom}–${FACTS.checkinTo} Uhr`,
       `Abreise ${FACTS.checkoutFrom}–${FACTS.checkoutTo} Uhr`,
       petsPolicy,
-      'Nichtraucherunterkunft',
-      `Kinderbett ${FACTS.cribPrice} pro Nacht`,
+      `Kinderbett ${FACTS.cribPrice} für den gesamten Aufenthalt`,
     ],
     petsPolicy,
     gallery: {

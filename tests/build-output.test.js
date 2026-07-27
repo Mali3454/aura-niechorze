@@ -202,7 +202,7 @@ describe.each(PAGES)('strona $lang', ({ path, lang, url }) => {
   it('slajd apartamentu wypisuje wyposażenie i zasady', () => {
     const d = doc(path);
     expect(d.querySelectorAll('#apartament .amenity').length).toBeGreaterThanOrEqual(10);
-    expect(d.querySelectorAll('#apartament .rule').length).toBeGreaterThanOrEqual(5);
+    expect(d.querySelectorAll('#apartament .rule').length).toBeGreaterThanOrEqual(4);
   });
 
   it('slajd okolicy ma listę odległości jako prawdziwą listę definicji i trzy atrakcje', () => {
@@ -401,18 +401,15 @@ describe('dane niepotwierdzone są podłączone, a nie martwe', () => {
     expect(used, `FACTS.${field} nie jest czytane w: ${files.join(', ')}`).toEqual(files);
   });
 
-  it.each(PAGES)('$path nie publikuje wiersza „odległość do plaży”, dopóki liczby brak', ({ path }) => {
-    // beachDistanceM jest null, bo źródła podają raz 50 m, raz 300 m. Lista
-    // odległości to same zmierzone liczby — wpis „tuż obok” czytał się w niej
-    // jak pomiar. Do czasu potwierdzenia wiersza po prostu nie ma.
-    const names = [...doc(path).querySelectorAll('#okolica .distance dt')].map((dt) =>
-      dt.textContent.toLowerCase()
+  it.each(PAGES)('$path publikuje wiersz „odległość do plaży” z potwierdzoną liczbą', ({ path }) => {
+    // beachDistanceM zostało potwierdzone na 50 m, więc wiersz musi się
+    // pojawić z tą wartością zamiast być pomijany.
+    const dts = [...doc(path).querySelectorAll('#okolica .distance dt')];
+    const beachDt = dts.find((dt) =>
+      /^(plaża w niechorzu|strand in niechorze|niechorze beach)$/.test(dt.textContent.toLowerCase())
     );
-    for (const n of names) {
-      expect(n, 'wiersz odległości do plaży w Niechorzu bez potwierdzonej liczby').not.toMatch(
-        /^(plaża w niechorzu|strand in niechorze|niechorze beach)$/
-      );
-    }
+    expect(beachDt, 'brak wiersza odległości do plaży w Niechorzu').toBeTruthy();
+    expect(beachDt.nextElementSibling.textContent).toContain('50');
   });
 });
 

@@ -38,7 +38,7 @@ export const pl: SiteContent = {
       'Aura to kameralny budynek na skraju sosnowego lasu w Niechorzu. Każdy apartament ma dwa poziomy, własny balkon z widokiem na morze i klimatyzację. Na miejscu czeka ogród, taras i bezpłatny parking — auto zostawiasz przy wejściu i przez cały pobyt do niego nie wracasz.',
     stats: [
       { value: `${FACTS.guests}`, label: 'osoby' },
-      { value: '950 m', label: 'do stacji kolejowej' },
+      { value: `${FACTS.beachDistanceM} m`, label: 'do plaży' },
       { value: '200 m', label: 'do restauracji' },
       ...(hasFact(FACTS.areaSqm) ? [{ value: `${FACTS.areaSqm} m²`, label: 'powierzchni' }] : []),
     ],
@@ -63,8 +63,7 @@ export const pl: SiteContent = {
       `Zameldowanie ${FACTS.checkinFrom}–${FACTS.checkinTo}`,
       `Wymeldowanie ${FACTS.checkoutFrom}–${FACTS.checkoutTo}`,
       petsPolicy,
-      'Obiekt bez palenia',
-      `Łóżeczko dziecięce ${FACTS.cribPrice} za dobę`,
+      `Łóżeczko dziecięce ${FACTS.cribPrice} za cały pobyt`,
     ],
     petsPolicy,
     gallery: {
